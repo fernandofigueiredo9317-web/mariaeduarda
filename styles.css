@@ -6874,13 +6874,12 @@ section.animate-in,
     transform-origin: center bottom;
     width: 120px;
     height: 120px;
-    border: 20px solid #ff6b9d;
+    border: 20px solid #808080;
     border-bottom: none;
     border-radius: 60px 60px 0 0;
-    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.3), 
-                inset 0 -8px 15px rgba(255, 107, 157, 0.3);
-    z-index: 2;
-    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+    box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.3);
+    z-index: 0;
+    background: transparent;
     transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -6917,7 +6916,7 @@ section.animate-in,
     align-items: center;
     justify-content: center;
     padding: 1.2rem 0.9rem;
-    z-index: 1;
+    z-index: 2;
     overflow: visible;
 }
 
@@ -7175,7 +7174,9 @@ section.animate-in,
         width: 100px;
         height: 100px;
         border-width: 16px;
+        border-color: #808080;
         top: -25px;
+        background: transparent;
     }
 
     .lock-body {

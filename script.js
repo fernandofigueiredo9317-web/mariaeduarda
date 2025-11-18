@@ -1044,42 +1044,79 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 // Photo Gallery Modal
-const fotoModal = document.getElementById('fotoModal');
-const modalImg = document.getElementById('modalImg');
-const fotoItems = document.querySelectorAll('.foto-item');
+let fotoModal, modalImg;
+
+// Função para inicializar modal de fotos
+function initFotoModal() {
+    fotoModal = document.getElementById('fotoModal');
+    modalImg = document.getElementById('modalImg');
+    
+    if (!fotoModal || !modalImg) return;
+    
+    // Event listeners para fechar modal
+    const closeModal = document.querySelector('.close-modal');
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            fotoModal.classList.remove('active');
+        });
+    }
+    
+    // Fechar modal ao clicar fora
+    fotoModal.addEventListener('click', (e) => {
+        if (e.target === fotoModal) {
+            fotoModal.classList.remove('active');
+        }
+    });
+    
+    // Fechar modal com ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && fotoModal.classList.contains('active')) {
+            fotoModal.classList.remove('active');
+        }
+    });
+}
 
 // Função para abrir modal de foto
 function openFotoModal(imageSrc) {
+    if (!fotoModal || !modalImg) {
+        initFotoModal();
+    }
+    
     if (modalImg && fotoModal) {
         modalImg.src = imageSrc;
         fotoModal.classList.add('active');
     }
 }
 
-// Event listeners para fotos existentes
-fotoItems.forEach(item => {
-    const img = item.querySelector('img');
-    if (img) {
-        item.addEventListener('click', () => {
-            openFotoModal(img.src);
+// Event listeners para fotos existentes (usando event delegation)
+function initFotoGallery() {
+    initFotoModal();
+    
+    // Usar event delegation para funcionar com fotos adicionadas dinamicamente
+    const fotosGrid = document.getElementById('fotosGrid');
+    if (fotosGrid) {
+        fotosGrid.addEventListener('click', (e) => {
+            const fotoItem = e.target.closest('.foto-item');
+            if (fotoItem) {
+                const img = fotoItem.querySelector('img');
+                if (img) {
+                    openFotoModal(img.src);
+                }
+            }
         });
     }
-});
-
-const closeModal = document.querySelector('.close-modal');
-if (closeModal) {
-    closeModal.addEventListener('click', () => {
-        fotoModal.classList.remove('active');
-    });
 }
 
-// Fechar modal ao clicar fora
-if (fotoModal) {
-    fotoModal.addEventListener('click', (e) => {
-        if (e.target === fotoModal) {
-            fotoModal.classList.remove('active');
-        }
-    });
+// Inicializar quando DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+    initFotoGallery();
+});
+
+// Inicializar também se o site já estiver desbloqueado
+if (sessionStorage.getItem('siteUnlocked') === 'true') {
+    setTimeout(() => {
+        initFotoGallery();
+    }, 100);
 }
 
 // Exportar função globalmente
@@ -1090,7 +1127,8 @@ let map;
 const locations = {
     rio: { lat: -22.9068, lng: -43.1729, name: 'Rio de Janeiro' },
     campos: { lat: -22.7394, lng: -45.5914, name: 'Campos do Jordão' },
-    paranavai: { lat: -23.0819, lng: -52.4619, name: 'Paranavaí' }
+    paranavai: { lat: -23.0819, lng: -52.4619, name: 'Paranavaí' },
+    odypark: { lat: -23.1956, lng: -51.8256, name: 'Odypark (Iguaraçu)' }
 };
 
 function initMap() {
@@ -1126,6 +1164,9 @@ const viagemFotos = {
     ],
     paranavai: [
         // Adicione URLs das fotos de Paranavaí aqui
+    ],
+    odypark: [
+        // Adicione URLs das fotos do Odypark aqui
     ]
 };
 
