@@ -861,6 +861,7 @@ if (document.readyState === 'loading') {
         initSonhosSystem();
         loadSonhos();
         loadLembrancas();
+        loadFotoFondue();
     });
 } else {
     initLoginSystem(); // Deve ser chamado primeiro
@@ -872,6 +873,7 @@ if (document.readyState === 'loading') {
     initSonhosSystem();
     loadSonhos();
     loadLembrancas();
+    loadFotoFondue();
 }
 
 // Upload System
@@ -3585,6 +3587,138 @@ function toggleChat() {
     }
 }
 
+// Upload Foto do Fondue
+function uploadFotoFondue() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const fotoFondue = document.getElementById('fotoFondue');
+                const placeholderFondue = document.getElementById('placeholderFondue');
+                
+                if (fotoFondue && placeholderFondue) {
+                    fotoFondue.src = event.target.result;
+                    fotoFondue.style.display = 'block';
+                    placeholderFondue.style.display = 'none';
+                    
+                    // Salvar no localStorage
+                    localStorage.setItem('mariaeduarda_foto_fondue', event.target.result);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    input.click();
+}
+
+// Upload Foto do Brinco
+function uploadFotoBrinco() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const fotoBrinco = document.getElementById('fotoBrinco');
+                const placeholderBrinco = document.getElementById('placeholderBrinco');
+                
+                if (fotoBrinco && placeholderBrinco) {
+                    fotoBrinco.src = event.target.result;
+                    fotoBrinco.style.display = 'block';
+                    placeholderBrinco.style.display = 'none';
+                    
+                    // Salvar no localStorage
+                    localStorage.setItem('mariaeduarda_foto_brinco', event.target.result);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    input.click();
+}
+
+// Upload Vídeo do Pedido de Namoro
+function uploadVideoPedido() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Para vídeos, criar blob URL
+            const videoUrl = URL.createObjectURL(file);
+            const videoPedido = document.getElementById('videoPedido');
+            const placeholderVideoPedido = document.getElementById('placeholderVideoPedido');
+            
+            if (videoPedido && placeholderVideoPedido) {
+                videoPedido.src = videoUrl;
+                videoPedido.style.display = 'block';
+                placeholderVideoPedido.style.display = 'none';
+                
+                // Salvar referência no localStorage (não podemos salvar o vídeo completo, mas podemos salvar a referência)
+                // Nota: Para persistência real, seria necessário um backend, mas vamos salvar uma flag
+                localStorage.setItem('mariaeduarda_video_pedido_uploaded', 'true');
+                localStorage.setItem('mariaeduarda_video_pedido_file', file.name);
+                
+                // Tentar salvar como base64 (pode ser grande, mas funciona para vídeos pequenos)
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    // Só salvar se o vídeo for menor que 10MB (limite aproximado do localStorage)
+                    if (file.size < 10 * 1024 * 1024) {
+                        localStorage.setItem('mariaeduarda_video_pedido', event.target.result);
+                    } else {
+                        // Para vídeos grandes, manter apenas a referência
+                        console.log('Vídeo muito grande para salvar no localStorage. Será necessário fazer upload novamente ao recarregar a página.');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    };
+    input.click();
+}
+
+// Carregar foto do fondue ao iniciar
+function loadFotoFondue() {
+    const fotoFondue = document.getElementById('fotoFondue');
+    const placeholderFondue = document.getElementById('placeholderFondue');
+    const savedFoto = localStorage.getItem('mariaeduarda_foto_fondue');
+    
+    if (savedFoto && fotoFondue && placeholderFondue) {
+        fotoFondue.src = savedFoto;
+        fotoFondue.style.display = 'block';
+        placeholderFondue.style.display = 'none';
+    }
+    
+    // Carregar foto do brinco também
+    const fotoBrinco = document.getElementById('fotoBrinco');
+    const placeholderBrinco = document.getElementById('placeholderBrinco');
+    const savedFotoBrinco = localStorage.getItem('mariaeduarda_foto_brinco');
+    
+    if (savedFotoBrinco && fotoBrinco && placeholderBrinco) {
+        fotoBrinco.src = savedFotoBrinco;
+        fotoBrinco.style.display = 'block';
+        placeholderBrinco.style.display = 'none';
+    }
+    
+    // Carregar vídeo do pedido
+    const videoPedido = document.getElementById('videoPedido');
+    const placeholderVideoPedido = document.getElementById('placeholderVideoPedido');
+    const savedVideoPedido = localStorage.getItem('mariaeduarda_video_pedido');
+    
+    if (savedVideoPedido && videoPedido && placeholderVideoPedido) {
+        videoPedido.src = savedVideoPedido;
+        videoPedido.style.display = 'block';
+        placeholderVideoPedido.style.display = 'none';
+    }
+}
+
 // Make functions available globally
 window.createRoom = createRoom;
 window.joinRoom = joinRoom;
@@ -3597,3 +3731,6 @@ window.checkWord = checkWord;
 window.checkCrossword = checkCrossword;
 window.checkCombinado = checkCombinado;
 window.submitDito = submitDito;
+window.uploadFotoFondue = uploadFotoFondue;
+window.uploadFotoBrinco = uploadFotoBrinco;
+window.uploadVideoPedido = uploadVideoPedido;
