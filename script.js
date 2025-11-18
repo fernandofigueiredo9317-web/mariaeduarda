@@ -276,14 +276,24 @@ function unlockSite() {
             `;
         }
         
-        // Animação de desbloqueio
+        // Animação de abertura do cadeado
+        const lockShackle = document.querySelector('.lock-shackle');
         const lockIcon = document.querySelector('.lock-icon');
-        if (lockIcon) {
-            lockIcon.style.animation = 'unlockAnimation 1s ease';
+        
+        if (lockShackle) {
+            // Adicionar classe para animar o shackle
+            lockShackle.classList.add('unlocking');
         }
         
-        // Criar animação de partículas (coração e texto)
-        createUnlockAnimation();
+        if (lockIcon) {
+            lockIcon.style.animation = 'unlockPulse 0.6s ease';
+        }
+        
+        // Aguardar animação do cadeado antes de criar partículas
+        setTimeout(() => {
+            // Criar animação de partículas (coração e texto)
+            createUnlockAnimation();
+        }, 800);
         
         // Desbloquear após animação
         setTimeout(() => {
@@ -1038,12 +1048,20 @@ const fotoModal = document.getElementById('fotoModal');
 const modalImg = document.getElementById('modalImg');
 const fotoItems = document.querySelectorAll('.foto-item');
 
+// Função para abrir modal de foto
+function openFotoModal(imageSrc) {
+    if (modalImg && fotoModal) {
+        modalImg.src = imageSrc;
+        fotoModal.classList.add('active');
+    }
+}
+
+// Event listeners para fotos existentes
 fotoItems.forEach(item => {
     const img = item.querySelector('img');
     if (img) {
         item.addEventListener('click', () => {
-            modalImg.src = img.src;
-            fotoModal.classList.add('active');
+            openFotoModal(img.src);
         });
     }
 });
@@ -1055,6 +1073,7 @@ if (closeModal) {
     });
 }
 
+// Fechar modal ao clicar fora
 if (fotoModal) {
     fotoModal.addEventListener('click', (e) => {
         if (e.target === fotoModal) {
@@ -1062,6 +1081,9 @@ if (fotoModal) {
         }
     });
 }
+
+// Exportar função globalmente
+window.openFotoModal = openFotoModal;
 
 // Map Initialization
 let map;
