@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maria Eduarda - Nosso Mundo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <span class="logo-heart">💕</span>
+                    <span class="logo-text">Maria Eduarda</span>
+                </div>
+                <div class="nav-main">
+                    <ul class="nav-menu" id="navMenu">
+                        <li><a href="#home" class="nav-link">🏠 Início</a></li>
+                        <li class="nav-dropdown">
+                            <a href="#nossa-historia" class="nav-link dropdown-toggle">
+                                💕 Nossa História
+                                <span class="dropdown-arrow">▼</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#nossa-historia">Nossa História</a></li>
+                                <li><a href="#fotos">📸 Fotos</a></li>
+                                <li><a href="#videos">🎥 Vídeos</a></li>
+                                <li><a href="#trends">📱 Trends</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-dropdown">
+                            <a href="#viagens" class="nav-link dropdown-toggle">
+                                ✈️ Viagens
+                                <span class="dropdown-arrow">▼</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#viagens">Nossas Viagens</a></li>
+                                <li><a href="#dates">💑 Dates</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#sonhos" class="nav-link">✨ Sonhos</a></li>
+                        <li><a href="#jogos" class="nav-link">🎮 Jogos</a></li>
+                        <li><a href="#perfil" class="nav-link" id="navPerfil" style="display: none;">👤 Perfil</a></li>
+                    </ul>
+                    <div class="user-profile-card" id="userProfileCard" style="display: none;">
+                        <a href="#perfil" class="profile-card-link">
+                            <div class="profile-card-content">
+                                <div class="profile-card-avatar" id="profileCardAvatar"></div>
+                                <div class="profile-card-info">
+                                    <div class="profile-card-name" id="profileCardName"></div>
+                                    <div class="profile-card-level">Nível <span id="profileCardLevel">1</span></div>
+                                    <div class="profile-card-xp">
+                                        <div class="xp-bar-mini">
+                                            <div class="xp-fill-mini" id="xpFillMini"></div>
+                                        </div>
+                                        <span class="xp-text-mini" id="xpTextMini">0/100 XP</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <button class="profile-card-logout" onclick="logout()" title="Sair">×</button>
+                    </div>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background">
+            <div class="floating-hearts">
+                <div class="heart">💖</div>
+                <div class="heart">💕</div>
+                <div class="heart">💗</div>
+                <div class="heart">💝</div>
+                <div class="heart">💞</div>
+                <div class="heart">💓</div>
+            </div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="title-line">Para Maria Eduarda</span>
+                <span class="title-line highlight">Com Todo Meu Amor</span>
+            </h1>
+            <p class="hero-subtitle">
+                Um lugar especial criado com carinho, cheio de memórias, jogos e tudo que você ama. 
+                Este é nosso cantinho virtual, onde cada momento juntos ganha vida.
+            </p>
+            <p class="hero-signature">
+                Com todo meu amor,<br>
+                <span class="signature-name">Fernando</span>
+            </p>
+            <div class="hero-date-counter">
+                <p class="date-label">Juntos desde</p>
+                <p class="date-value">07 de Agosto de 2024</p>
+                <p class="days-counter" id="daysCounter"></p>
+            </div>
+            <div class="hero-scroll">
+                <span>💕</span>
+                <p>Role para descobrir</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nossa História Section -->
+    <section id="nossa-historia" class="historia">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossa História</h2>
+                <p class="section-subtitle">Momentos especiais que construímos juntos</p>
+            </div>
+            <div class="historia-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">💍</div>
+                    <div class="timeline-content">
+                        <h3>07 de Agosto de 2024</h3>
+                        <p style="font-size: 1.1rem; color: var(--primary-color); font-weight: 600; margin-bottom: 0.5rem;">O Dia que Tudo Começou</p>
+                        <p>O dia mais especial de nossas vidas. O momento em que eu te pedi em namoro e você disse sim! Desde então, cada dia ao seu lado é uma nova descoberta, uma nova razão para sorrir. Este é o início da nossa história de amor.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">💕</div>
+                    <div class="timeline-content">
+                        <h3>O Começo</h3>
+                        <p>O dia em que nossos caminhos se cruzaram e tudo começou a fazer sentido. Cada riso, cada conversa, cada momento especial que nos aproximou.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">🌹</div>
+                    <div class="timeline-content">
+                        <h3>Momentos Inesquecíveis</h3>
+                        <p>As memórias que guardamos no coração. Cada abraço, cada beijo, cada "eu te amo" que ecoa em nossos corações.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">✨</div>
+                    <div class="timeline-content">
+                        <h3>Sonhos Juntos</h3>
+                        <p>Os planos que fazemos, os sonhos que compartilhamos e a certeza de que queremos construir um futuro lado a lado.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="historia-text">
+                <p class="historia-poem">
+                    "Em cada olhar, encontro meu mundo.<br>
+                    Em cada sorriso, encontro minha paz.<br>
+                    Em cada momento contigo, encontro meu lar.<br>
+                    Você é minha inspiração, meu amor, minha vida."
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fotos Section -->
+    <section id="fotos" class="fotos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossas Fotos</h2>
+                <p class="section-subtitle">Cada foto conta uma história de amor</p>
+                <button class="btn-upload-small" onclick="showUploadModal('fotos')">
+                    <span>➕</span> Adicionar Foto
+                </button>
+            </div>
+            <div class="fotos-grid" id="fotosGrid">
+                <!-- Placeholder para fotos - você pode adicionar suas próprias fotos aqui -->
+                <div class="foto-item">
+                    <div class="foto-placeholder">
+                        <span>📸</span>
+                        <p>Adicione suas fotos aqui</p>
+                    </div>
+                </div>
+                <div class="foto-item">
+                    <div class="foto-placeholder">
+                        <span>💑</span>
+                        <p>Adicione suas fotos aqui</p>
+                    </div>
+                </div>
+                <div class="foto-item">
+                    <div class="foto-placeholder">
+                        <span>🌅</span>
+                        <p>Adicione suas fotos aqui</p>
+                    </div>
+                </div>
+                <div class="foto-item">
+                    <div class="foto-placeholder">
+                        <span>💕</span>
+                        <p>Adicione suas fotos aqui</p>
+                    </div>
+                </div>
+                <div class="foto-item">
+                    <div class="foto-placeholder">
+                        <span>✨</span>
+                        <p>Adicione suas fotos aqui</p>
+                    </div>
+                </div>
+                <div class="foto-item">
+                    <div class="foto-placeholder">
+                        <span>🌹</span>
+                        <p>Adicione suas fotos aqui</p>
+                    </div>
+                </div>
+            </div>
+            <div class="foto-modal" id="fotoModal">
+                <span class="close-modal">&times;</span>
+                <img class="modal-content" id="modalImg">
+            </div>
+        </div>
+    </section>
+
+    <!-- Vídeos Section -->
+    <section id="videos" class="videos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossos Vídeos</h2>
+                <p class="section-subtitle">Memórias em movimento</p>
+                <button class="btn-upload-small" onclick="showUploadModal('videos')">
+                    <span>➕</span> Adicionar Vídeo
+                </button>
+            </div>
+            <div class="videos-grid" id="videosGrid">
+                <!-- Vídeo do Pedido de Namoro -->
+                <div class="video-item">
+                    <div style="position: relative; width: 100%; height: 100%; background: var(--gradient-1); display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 2rem; text-align: center; border-radius: 15px;">
+                        <span style="font-size: 4rem; margin-bottom: 1rem;">💍</span>
+                        <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">Pedido de Namoro</h3>
+                        <p style="margin-bottom: 1rem;">07 de Agosto de 2024</p>
+                        <p style="font-size: 0.9rem; opacity: 0.9;">Adicione o vídeo do pedido de namoro aqui</p>
+                        <small style="margin-top: 1rem; opacity: 0.8;">Substitua este placeholder pelo iframe do YouTube ou vídeo local</small>
+                        <!-- Para adicionar o vídeo, substitua este div por: -->
+                        <!-- <iframe src="https://www.youtube.com/embed/SEU_VIDEO_ID" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+                    </div>
+                </div>
+                <div class="video-item">
+                    <div class="video-placeholder">
+                        <span>💕</span>
+                        <p>Adicione seus vídeos aqui</p>
+                        <small>Você pode usar links do YouTube ou vídeos locais</small>
+                    </div>
+                </div>
+                <div class="video-item">
+                    <div class="video-placeholder">
+                        <span>✨</span>
+                        <p>Adicione seus vídeos aqui</p>
+                        <small>Você pode usar links do YouTube ou vídeos locais</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trends Section -->
+    <section id="trends" class="trends">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossas Trends</h2>
+                <p class="section-subtitle">Vídeos especiais que fizemos juntos</p>
+                <button class="btn-upload-trend" onclick="showUploadModal('trends')">
+                    <span>➕</span> Adicionar Trend
+                </button>
+            </div>
+            <div class="trends-grid" id="trendsGrid">
+                <!-- Trends serão adicionadas dinamicamente -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Viagens Section -->
+    <section id="viagens" class="viagens">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossas Viagens</h2>
+                <p class="section-subtitle">Lugares que visitamos juntos</p>
+            </div>
+            <div class="viagens-content">
+                <div class="viagens-list">
+                    <div class="viagem-card" data-location="rio">
+                        <div class="viagem-icon">🏖️</div>
+                        <h3>Rio de Janeiro</h3>
+                        <p>Nossas memórias na Cidade Maravilhosa</p>
+                        <div class="viagem-info">
+                            <span class="viagem-time">🚗 ~11h30min de Londrina-PR</span>
+                            <span class="viagem-distance">~900 km</span>
+                        </div>
+                    </div>
+                    <div class="viagem-card" data-location="campos">
+                        <div class="viagem-icon">🏔️</div>
+                        <h3>Campos do Jordão</h3>
+                        <p>Momentos especiais na Suíça Brasileira</p>
+                        <div class="viagem-info">
+                            <span class="viagem-time">🚗 ~5h30min de Londrina-PR</span>
+                            <span class="viagem-distance">~400 km</span>
+                        </div>
+                    </div>
+                    <div class="viagem-card" data-location="paranavai">
+                        <div class="viagem-icon">🌳</div>
+                        <h3>Paranavaí</h3>
+                        <p>Nossas aventuras juntos</p>
+                        <div class="viagem-info">
+                            <span class="viagem-time">🚗 ~1h30min de Londrina-PR</span>
+                            <span class="viagem-distance">~100 km</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="map-container">
+                    <div id="map"></div>
+                </div>
+            </div>
+            
+            <!-- Galeria de Fotos das Viagens -->
+            <div class="viagem-gallery" id="viagemGallery" style="display: none;">
+                <h3 class="gallery-title" id="galleryTitle"></h3>
+                <div class="gallery-grid" id="galleryGrid">
+                    <!-- Fotos serão adicionadas dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dates Section -->
+    <section id="dates" class="dates">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossos Dates</h2>
+                <p class="section-subtitle">Momentos especiais que vivemos juntos</p>
+            </div>
+            <div class="dates-grid">
+                <div class="date-card">
+                    <div class="date-icon">💕</div>
+                    <div class="date-content">
+                        <h3>Primeiro Encontro</h3>
+                        <p class="date-description">O dia em que tudo começou...</p>
+                        <div class="date-placeholder">
+                            <span>📸</span>
+                            <p>Adicione fotos do primeiro encontro</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">🌹</div>
+                    <div class="date-content">
+                        <h3>Jantar Romântico</h3>
+                        <p class="date-description">Noites especiais a dois...</p>
+                        <div class="date-placeholder">
+                            <span>🍽️</span>
+                            <p>Adicione fotos dos jantares</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">🎬</div>
+                    <div class="date-content">
+                        <h3>Cinema</h3>
+                        <p class="date-description">Filmes e pipoca juntos...</p>
+                        <div class="date-placeholder">
+                            <span>🎥</span>
+                            <p>Adicione fotos dos cinemas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">🌅</div>
+                    <div class="date-content">
+                        <h3>Pôr do Sol</h3>
+                        <p class="date-description">Momentos contemplando o horizonte...</p>
+                        <div class="date-placeholder">
+                            <span>🌇</span>
+                            <p>Adicione fotos dos pores do sol</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">🎂</div>
+                    <div class="date-content">
+                        <h3>Aniversários</h3>
+                        <p class="date-description">Celebrando juntos...</p>
+                        <div class="date-placeholder">
+                            <span>🎉</span>
+                            <p>Adicione fotos dos aniversários</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="date-card">
+                    <div class="date-icon">💐</div>
+                    <div class="date-content">
+                        <h3>Surpresas</h3>
+                        <p class="date-description">Momentos inesperados e especiais...</p>
+                        <div class="date-placeholder">
+                            <span>🎁</span>
+                            <p>Adicione fotos das surpresas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sonhos e Planos Section -->
+    <section id="sonhos" class="sonhos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nossos Sonhos e Planos</h2>
+                <p class="section-subtitle">Juntos vamos realizar todos os nossos sonhos</p>
+                <button class="btn-add-sonho" onclick="showAddSonhoModal()">
+                    <span>✨</span> Adicionar Sonho
+                </button>
+            </div>
+            
+            <div class="sonhos-categories">
+                <button class="category-btn active" data-category="todos" onclick="filterSonhos('todos')">
+                    <span>🌟</span> Todos
+                </button>
+                <button class="category-btn" data-category="morar-juntos" onclick="filterSonhos('morar-juntos')">
+                    <span>🏠</span> Morar Juntos
+                </button>
+                <button class="category-btn" data-category="casar" onclick="filterSonhos('casar')">
+                    <span>💍</span> Casar
+                </button>
+                <button class="category-btn" data-category="casa" onclick="filterSonhos('casa')">
+                    <span>🏡</span> Nossa Casa
+                </button>
+                <button class="category-btn" data-category="familia" onclick="filterSonhos('familia')">
+                    <span>👨‍👩‍👧‍👦</span> Família
+                </button>
+                <button class="category-btn" data-category="outros" onclick="filterSonhos('outros')">
+                    <span>💫</span> Outros
+                </button>
+            </div>
+
+            <div class="sonhos-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSonhos">0</div>
+                    <div class="stat-label">Sonhos</div>
+                </div>
+                <div class="stat-card completed">
+                    <div class="stat-number" id="sonhosRealizados">0</div>
+                    <div class="stat-label">Realizados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="porcentagemRealizados">0%</div>
+                    <div class="stat-label">Concluído</div>
+                </div>
+            </div>
+
+            <div class="sonhos-grid" id="sonhosGrid">
+                <!-- Sonhos serão adicionados dinamicamente -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Perfil e Pontos Section -->
+    <section id="perfil" class="perfil">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Meu Perfil</h2>
+                <p class="section-subtitle">Suas conquistas e experiências</p>
+            </div>
+            
+            <div class="perfil-content" id="perfilContent">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+            
+            <!-- Vales Desbloqueados -->
+            <div class="vales-section" id="valesSection" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Vales Desbloqueados</h2>
+                    <p class="section-subtitle">Recompensas especiais que você ganhou!</p>
+                </div>
+                <div class="vales-grid" id="valesGrid">
+                    <!-- Vales serão adicionados dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Jogos Section -->
+    <section id="jogos" class="jogos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Seus Jogos Favoritos</h2>
+                <p class="section-subtitle">Diversão e conhecimento se encontram</p>
+            </div>
+            <div class="jogos-carousel-container">
+                <div class="jogos-carousel-wrapper">
+                    <div class="jogos-carousel" id="jogosCarousel">
+                        <!-- Ícones dos jogos -->
+                        <div class="jogo-icon-small" data-jogo="soletra" data-index="0">
+                            <div class="jogo-icon-grid soletra-icon-grid">
+                                <div class="icon-circle icon-circle-outer"></div>
+                                <div class="icon-circle icon-circle-outer"></div>
+                                <div class="icon-circle icon-circle-outer"></div>
+                                <div class="icon-circle icon-circle-outer"></div>
+                                <div class="icon-circle icon-circle-outer"></div>
+                                <div class="icon-circle icon-circle-outer"></div>
+                                <div class="icon-circle icon-circle-central"></div>
+                            </div>
+                        </div>
+                        <div class="jogo-icon-small" data-jogo="combinado" data-index="1">
+                            <div class="jogo-icon-grid combinado-icon-grid">
+                                <div class="icon-square" style="background: #9c27b0;"></div>
+                                <div class="icon-square" style="background: #e91e63;"></div>
+                                <div class="icon-square" style="background: #4caf50;"></div>
+                                <div class="icon-square" style="background: #00bcd4;"></div>
+                                <div class="icon-square" style="background: #2196f3;"></div>
+                                <div class="icon-square" style="background: #ffc107;"></div>
+                            </div>
+                        </div>
+                        <div class="jogo-icon-small active" data-jogo="dito" data-index="2">
+                            <div class="jogo-icon-grid dito-icon-grid">
+                                <div class="icon-square"></div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square icon-square-blue"></div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square icon-square-gray"></div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square"></div>
+                            </div>
+                        </div>
+                        <div class="jogo-icon-small" data-jogo="sudoku" data-index="3">
+                            <div class="jogo-icon-grid sudoku-icon-grid">
+                                <div class="icon-square"></div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square icon-square-number">5</div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square icon-square-number">1</div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square icon-square-number">5</div>
+                                <div class="icon-square"></div>
+                                <div class="icon-square icon-square-number">2</div>
+                            </div>
+                        </div>
+                        <div class="jogo-icon-small" data-jogo="palavras-cruzadas" data-index="4">
+                            <div class="jogo-icon-grid crossword-icon-grid">
+                                <div class="icon-square icon-square-letter">A</div>
+                                <div class="icon-square icon-square-letter">U</div>
+                                <div class="icon-square icon-square-letter">F</div>
+                                <div class="icon-square icon-square-letter">G</div>
+                                <div class="icon-square icon-square-letter icon-square-highlight">U</div>
+                                <div class="icon-square icon-square-letter icon-square-highlight">M</div>
+                                <div class="icon-square icon-square-letter">H</div>
+                                <div class="icon-square icon-square-letter">N</div>
+                                <div class="icon-square icon-square-letter">A</div>
+                            </div>
+                        </div>
+                        <div class="jogo-icon-small" data-jogo="domino" data-index="5">
+                            <div class="jogo-icon-grid domino-icon-grid">
+                                <div class="domino-piece-icon"></div>
+                                <div class="domino-piece-icon"></div>
+                                <div class="domino-piece-icon"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Indicadores de paginação -->
+                <div class="carousel-dots" id="carouselDots">
+                    <span class="dot" data-index="0"></span>
+                    <span class="dot" data-index="1"></span>
+                    <span class="dot active" data-index="2"></span>
+                    <span class="dot" data-index="3"></span>
+                    <span class="dot" data-index="4"></span>
+                    <span class="dot" data-index="5"></span>
+                </div>
+                
+                <!-- Informações do jogo selecionado -->
+                <div class="jogo-selected-info" id="jogoSelectedInfo">
+                    <h3 class="jogo-selected-title" id="jogoSelectedTitle">Dito</h3>
+                    <p class="jogo-selected-description" id="jogoSelectedDescription">
+                        Adivinhe a palavra secreta do dia em apenas 6 tentativas. Uma palavra nova por dia! Já descobriu a palavra de hoje?
+                    </p>
+                    <button class="btn-jogar" id="btnJogar" data-jogo="dito">Jogar</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login System Modal -->
+    <div class="login-system-modal" id="loginSystemModal">
+        <div class="login-system-content">
+            <div class="login-system-header">
+                <h2>Bem-vindo ao Nosso Mundo</h2>
+                <p>Escolha quem você é para começar</p>
+            </div>
+            <div class="login-system-options">
+                <button class="login-system-btn" onclick="loginUser('maria')">
+                    <div class="login-avatar">👩</div>
+                    <div class="login-name">Maria Eduarda</div>
+                    <div class="login-subtitle">Sua conta</div>
+                </button>
+                <button class="login-system-btn" onclick="loginUser('fernando')">
+                    <div class="login-avatar">👨</div>
+                    <div class="login-name">Fernando</div>
+                    <div class="login-subtitle">Sua conta</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-modal-content">
+            <span class="close-login">&times;</span>
+            <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">Quem está jogando?</h2>
+            <div class="login-options">
+                <button class="login-btn" data-player="maria">
+                    <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">👩</span>
+                    <strong>Maria Eduarda</strong>
+                </button>
+                <button class="login-btn" data-player="fernando">
+                    <span style="font-size: 3rem; display: block; margin-bottom: 0.5rem;">👨</span>
+                    <strong>Fernando</strong>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modals -->
+    <div class="game-modal" id="gameModal">
+        <div class="game-modal-content">
+            <span class="close-game">&times;</span>
+            <div id="gameContainer"></div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="upload-modal" id="uploadModal">
+        <div class="upload-modal-content">
+            <span class="close-upload">&times;</span>
+            <h2 id="uploadModalTitle">Adicionar Conteúdo</h2>
+            <div class="upload-form">
+                <div class="upload-author-select">
+                    <label>Quem está adicionando?</label>
+                    <div class="author-options">
+                        <button class="author-btn" data-author="maria" onclick="selectAuthor('maria')">
+                            <span>👩</span> Maria Eduarda
+                        </button>
+                        <button class="author-btn" data-author="fernando" onclick="selectAuthor('fernando')">
+                            <span>👨</span> Fernando
+                        </button>
+                    </div>
+                </div>
+                <div class="upload-file-area">
+                    <input type="file" id="uploadFileInput" accept="image/*,video/*" multiple style="display: none;">
+                    <div class="upload-dropzone" id="uploadDropzone">
+                        <span class="upload-icon">📎</span>
+                        <p>Arraste arquivos aqui ou clique para selecionar</p>
+                        <small>Suporta imagens e vídeos</small>
+                    </div>
+                    <div class="upload-preview" id="uploadPreview"></div>
+                </div>
+                <div class="upload-comment-area">
+                    <label for="uploadComment">Comentário (opcional)</label>
+                    <textarea id="uploadComment" placeholder="Adicione um comentário sobre este momento..."></textarea>
+                </div>
+                <div class="upload-date-area">
+                    <label for="uploadDate">Data</label>
+                    <input type="date" id="uploadDate">
+                </div>
+                <button class="btn-upload-submit" onclick="submitUpload()">Publicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Sonho Modal -->
+    <div class="sonho-modal" id="sonhoModal">
+        <div class="sonho-modal-content">
+            <span class="close-sonho">&times;</span>
+            <h2>Adicionar Sonho</h2>
+            <div class="sonho-form">
+                <div class="sonho-author-select">
+                    <label>Quem está adicionando?</label>
+                    <div class="author-options">
+                        <button class="author-btn" data-author="maria" onclick="selectSonhoAuthor('maria')">
+                            <span>👩</span> Maria Eduarda
+                        </button>
+                        <button class="author-btn" data-author="fernando" onclick="selectSonhoAuthor('fernando')">
+                            <span>👨</span> Fernando
+                        </button>
+                    </div>
+                </div>
+                <div class="sonho-form-group">
+                    <label for="sonhoTitulo">Título do Sonho *</label>
+                    <input type="text" id="sonhoTitulo" placeholder="Ex: Morar juntos em uma casa própria" required>
+                </div>
+                <div class="sonho-form-group">
+                    <label for="sonhoCategoria">Categoria *</label>
+                    <select id="sonhoCategoria" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="morar-juntos">🏠 Morar Juntos</option>
+                        <option value="casar">💍 Casar</option>
+                        <option value="casa">🏡 Nossa Casa</option>
+                        <option value="familia">👨‍👩‍👧‍👦 Família</option>
+                        <option value="outros">💫 Outros</option>
+                    </select>
+                </div>
+                <div class="sonho-form-group">
+                    <label for="sonhoDescricao">Descrição (opcional)</label>
+                    <textarea id="sonhoDescricao" placeholder="Descreva seu sonho em detalhes..."></textarea>
+                </div>
+                <div class="sonho-form-group">
+                    <label for="sonhoData">Data prevista (opcional)</label>
+                    <input type="date" id="sonhoData">
+                </div>
+                <button class="btn-sonho-submit" onclick="addSonho()">Adicionar Sonho</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-heart">💕</p>
+                <p class="footer-text">Feito com amor para Maria Eduarda</p>
+                <p class="footer-date">2024</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
