@@ -119,7 +119,6 @@
                         </li>
                         <li><a href="#sonhos" class="nav-link">✨ Sonhos</a></li>
                         <li><a href="#jogos" class="nav-link">🎮 Jogos</a></li>
-                        <li><a href="#the-office" class="nav-link">🎬 Referências</a></li>
                         <li><a href="#perfil" class="nav-link" id="navPerfil" style="display: none;">👤 Perfil</a></li>
                     </ul>
                     <div class="user-profile-card" id="userProfileCard" style="display: none;">
@@ -149,6 +148,35 @@
             </div>
         </nav>
     </header>
+
+    <!-- Music Player -->
+    <div class="music-player" id="musicPlayer">
+        <div class="music-player-content">
+            <div class="music-info">
+                <div class="music-icon">🎵</div>
+                <div class="music-details">
+                    <div class="music-title">Night Drive</div>
+                    <div class="music-subtitle">Nossa Música 💕</div>
+                </div>
+            </div>
+            <audio id="backgroundMusic" loop>
+                <source src="night-drive.mp3" type="audio/mpeg">
+                <source src="night-drive.ogg" type="audio/ogg">
+                Seu navegador não suporta áudio.
+            </audio>
+            <div class="music-controls">
+                <button class="music-btn" id="playPauseBtn" onclick="toggleMusic()" title="Play/Pause">
+                    <span id="playPauseIcon">▶</span>
+                </button>
+                <div class="music-volume-control">
+                    <button class="music-btn volume-btn" id="volumeBtn" onclick="toggleMute()" title="Volume">
+                        <span id="volumeIcon">🔊</span>
+                    </button>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="setVolume(this.value)" class="volume-slider">
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section id="home" class="hero">
@@ -615,64 +643,6 @@
         </div>
     </section>
 
-    <!-- Referências Pop Section -->
-    <section id="the-office" class="references-section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">🎬 Nossas Referências Favoritas</h2>
-                <p class="section-subtitle">Tudo que você ama! Referências especiais espalhadas pelo site 💕</p>
-            </div>
-            <div class="references-grid">
-                <!-- The Office -->
-                <div class="reference-card office-card">
-                    <div class="reference-icon">💼</div>
-                    <h3>The Office</h3>
-                    <p>Nossa série favorita! Referências especiais espalhadas pelo site... 😏</p>
-                    <div class="reference-quotes">
-                        <p class="reference-quote">"That's what she said!"</p>
-                        <p class="reference-quote">"Bears. Beets. Battlestar Galactica."</p>
-                        <p class="reference-quote">"I'm not superstitious, but I am a little stitious."</p>
-                    </div>
-                </div>
-                
-                <!-- Crepúsculo -->
-                <div class="reference-card twilight-card">
-                    <div class="reference-icon">🌙</div>
-                    <h3>Crepúsculo</h3>
-                    <p>Sua saga favorita! Referências românticas e especiais... 💕</p>
-                    <div class="reference-quotes">
-                        <p class="reference-quote">"And so the lion fell in love with the lamb..."</p>
-                        <p class="reference-quote">"You're my own personal brand of heroin."</p>
-                        <p class="reference-quote">"I'm only afraid of losing you."</p>
-                    </div>
-                </div>
-                
-                <!-- Britney Spears -->
-                <div class="reference-card britney-card">
-                    <div class="reference-icon">🎤</div>
-                    <h3>Britney Spears</h3>
-                    <p>A diva pop que você adora! Referências musicais especiais... 🎵</p>
-                    <div class="reference-quotes">
-                        <p class="reference-quote">"Oops!... I Did It Again"</p>
-                        <p class="reference-quote">"Baby One More Time"</p>
-                        <p class="reference-quote">"Toxic" - nossa música especial! 💕</p>
-                    </div>
-                </div>
-                
-                <!-- Shrek -->
-                <div class="reference-card shrek-card">
-                    <div class="reference-icon">🦷</div>
-                    <h3>Shrek</h3>
-                    <p>O ogro mais fofo! Referências divertidas e especiais... 😄</p>
-                    <div class="reference-quotes">
-                        <p class="reference-quote">"Ogres are like onions..."</p>
-                        <p class="reference-quote">"Somebody once told me..."</p>
-                        <p class="reference-quote">"I'm a Believer" - nossa música! 💚</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Jogos Section -->
     <section id="jogos" class="jogos">

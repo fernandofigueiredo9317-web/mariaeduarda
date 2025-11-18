@@ -5049,3 +5049,245 @@ document.addEventListener('MSFullscreenChange', () => {
 window.toggleFullscreen = toggleFullscreen;
 window.selectQuizAnswer = selectQuizAnswer;
 window.initQuiz = initQuiz;
+
+// Music Player System
+let isPlaying = false;
+let isMuted = false;
+let savedVolume = 50;
+
+function initMusicPlayer() {
+    const audio = document.getElementById('backgroundMusic');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playPauseIcon = document.getElementById('playPauseIcon');
+    const volumeBtn = document.getElementById('volumeBtn');
+    const volumeIcon = document.getElementById('volumeIcon');
+    const volumeSlider = document.getElementById('volumeSlider');
+    
+    if (!audio) return;
+    
+    // Carregar volume salvo
+    const savedVol = localStorage.getItem('musicVolume');
+    if (savedVol) {
+        audio.volume = savedVol / 100;
+        volumeSlider.value = savedVol;
+        savedVolume = parseInt(savedVol);
+    } else {
+        audio.volume = 0.5;
+    }
+    
+    // Event listeners
+    audio.addEventListener('play', () => {
+        isPlaying = true;
+        if (playPauseIcon) playPauseIcon.textContent = '⏸';
+    });
+    
+    audio.addEventListener('pause', () => {
+        isPlaying = false;
+        if (playPauseIcon) playPauseIcon.textContent = '▶';
+    });
+    
+    audio.addEventListener('volumechange', () => {
+        if (audio.muted) {
+            if (volumeIcon) volumeIcon.textContent = '🔇';
+            isMuted = true;
+        } else {
+            if (volumeIcon) volumeIcon.textContent = audio.volume > 0.5 ? '🔊' : '🔉';
+            isMuted = false;
+        }
+    });
+}
+
+function toggleMusic() {
+    const audio = document.getElementById('backgroundMusic');
+    if (!audio) return;
+    
+    if (isPlaying) {
+        audio.pause();
+    } else {
+        audio.play().catch(err => {
+            console.log('Erro ao reproduzir música:', err);
+            // Mostrar mensagem amigável
+            const musicPlayer = document.getElementById('musicPlayer');
+            if (musicPlayer) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 80px;
+                    right: 20px;
+                    background: var(--gradient-1);
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 15px;
+                    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.textContent = '💕 Clique para permitir a reprodução da música';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            }
+        });
+    }
+}
+
+function toggleMute() {
+    const audio = document.getElementById('backgroundMusic');
+    if (!audio) return;
+    
+    if (isMuted) {
+        audio.muted = false;
+        isMuted = false;
+    } else {
+        audio.muted = true;
+        isMuted = true;
+    }
+}
+
+function setVolume(value) {
+    const audio = document.getElementById('backgroundMusic');
+    if (!audio) return;
+    
+    const volume = value / 100;
+    audio.volume = volume;
+    savedVolume = parseInt(value);
+    localStorage.setItem('musicVolume', value);
+    
+    // Atualizar ícone
+    const volumeIcon = document.getElementById('volumeIcon');
+    if (volumeIcon) {
+        if (volume == 0) {
+            volumeIcon.textContent = '🔇';
+        } else if (volume < 0.5) {
+            volumeIcon.textContent = '🔉';
+        } else {
+            volumeIcon.textContent = '🔊';
+        }
+    }
+}
+
+// Inicializar player quando o site for desbloqueado
+document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('siteUnlocked') === 'true') {
+        setTimeout(() => {
+            initMusicPlayer();
+        }, 1000);
+    }
+});
+
+// Reinicializar player quando desbloquear (já existe sobrescrita anterior, então vamos adicionar a inicialização de música lá)
+
+// Exportar funções
+window.toggleMusic = toggleMusic;
+window.toggleMute = toggleMute;
+window.setVolume = setVolume;
+
+// Scroll Animations System
+function initScrollAnimations() {
+    // Aguardar o site ser desbloqueado
+    if (sessionStorage.getItem('siteUnlocked') !== 'true') {
+        setTimeout(initScrollAnimations, 1000);
+        return;
+    }
+    
+    // Configuração do Intersection Observer
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    // Selecionar elementos para animar
+    const elementsToAnimate = document.querySelectorAll(`
+        section,
+        .section-header,
+        .timeline-item,
+        .foto-item,
+        .video-item,
+        .sonho-card,
+        .reference-card,
+        .jogo-icon-small,
+        .office-quote-card,
+        .stat-card
+    `);
+    
+    // Adicionar classes iniciais e observar
+    elementsToAnimate.forEach((el, index) => {
+        // Adicionar classe de animação baseada no tipo
+        if (el.classList.contains('section-header')) {
+            el.classList.add('scroll-fade-up');
+        } else if (el.classList.contains('timeline-item')) {
+            el.classList.add('scroll-fade-left');
+        } else if (el.classList.contains('foto-item') || el.classList.contains('video-item')) {
+            el.classList.add('scroll-fade-scale');
+            // Delay escalonado para grid items
+            el.style.animationDelay = `${(index % 6) * 0.1}s`;
+        } else if (el.classList.contains('sonho-card')) {
+            el.classList.add('scroll-fade-up');
+            el.style.animationDelay = `${(index % 3) * 0.15}s`;
+        } else if (el.classList.contains('reference-card')) {
+            el.classList.add('scroll-fade-scale');
+            el.style.animationDelay = `${(index % 4) * 0.2}s`;
+        } else if (el.classList.contains('jogo-icon-small')) {
+            el.classList.add('scroll-fade-scale');
+            el.style.animationDelay = `${(index % 7) * 0.05}s`;
+        } else if (el.classList.contains('office-quote-card')) {
+            el.classList.add('scroll-fade-right');
+            el.style.animationDelay = `${index * 0.1}s`;
+        } else if (el.classList.contains('stat-card')) {
+            el.classList.add('scroll-fade-up');
+            el.style.animationDelay = `${index * 0.1}s`;
+        } else if (el.tagName === 'SECTION') {
+            el.classList.add('scroll-fade-in');
+        }
+        
+        observer.observe(el);
+    });
+    
+    // Animar elementos dentro de seções específicas
+    animateSectionChildren();
+}
+
+function animateSectionChildren() {
+    // Animar itens da timeline com delay
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    timelineItems.forEach((item, index) => {
+        item.style.animationDelay = `${index * 0.2}s`;
+    });
+    
+    // Animar cards de referências
+    const referenceCards = document.querySelectorAll('.reference-card');
+    referenceCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.15}s`;
+    });
+}
+
+// Inicializar quando o DOM estiver pronto e o site desbloqueado
+document.addEventListener('DOMContentLoaded', () => {
+    // Aguardar um pouco para garantir que tudo está carregado
+    setTimeout(() => {
+        if (sessionStorage.getItem('siteUnlocked') === 'true') {
+            initScrollAnimations();
+        }
+    }, 500);
+});
+
+// Sobrescrever unlockSite para adicionar inicialização de animações e música após desbloqueio
+// (unlockSite já foi exportado globalmente na linha 331)
+const originalUnlockSite = window.unlockSite;
+window.unlockSite = function() {
+    const result = originalUnlockSite.apply(this, arguments);
+    // Aguardar animação de desbloqueio terminar antes de inicializar scroll animations e música
+    setTimeout(() => {
+        initScrollAnimations();
+        initMusicPlayer();
+    }, 5000);
+    return result;
+};

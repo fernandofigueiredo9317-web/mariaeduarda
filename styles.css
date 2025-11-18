@@ -6189,13 +6189,178 @@ section {
     font-size: 3rem;
 }
 
-/* Referências Pop Section */
-.references-section {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    padding: 4rem 0;
+/* Music Player */
+.music-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    min-width: 280px;
+}
+
+.music-player:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(255, 107, 157, 0.3);
+}
+
+.music-player-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.music-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex: 1;
+}
+
+.music-icon {
+    font-size: 1.8rem;
+    animation: musicPulse 2s ease-in-out infinite;
+}
+
+@keyframes musicPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.music-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.music-title {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.music-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.music-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.music-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--gradient-1);
     color: white;
-    position: relative;
-    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(255, 107, 157, 0.3);
+}
+
+.music-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.5);
+}
+
+.music-btn:active {
+    transform: scale(0.95);
+}
+
+.music-volume-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.volume-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+}
+
+.volume-slider {
+    width: 80px;
+    height: 4px;
+    border-radius: 2px;
+    background: #e0e0e0;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(255, 107, 157, 0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 5px rgba(255, 107, 157, 0.3);
+}
+
+@media (max-width: 768px) {
+    .music-player {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        padding: 0.8rem 1rem;
+    }
+    
+    .music-player-content {
+        gap: 0.8rem;
+    }
+    
+    .music-icon {
+        font-size: 1.5rem;
+    }
+    
+    .music-title {
+        font-size: 0.85rem;
+    }
+    
+    .music-subtitle {
+        font-size: 0.7rem;
+    }
+    
+    .music-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+    
+    .volume-slider {
+        width: 60px;
+    }
 }
 
 .references-section::before {
@@ -6395,6 +6560,212 @@ section {
         opacity: 0.7;
         transform: scale(1.2);
     }
+}
+
+/* Scroll Animations */
+.scroll-fade-in,
+.scroll-fade-up,
+.scroll-fade-left,
+.scroll-fade-right,
+.scroll-fade-scale {
+    opacity: 0;
+    transition: opacity 0.6s ease-out, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scroll-fade-in {
+    transform: translateY(0);
+}
+
+.scroll-fade-up {
+    transform: translateY(50px);
+}
+
+.scroll-fade-left {
+    transform: translateX(-50px);
+}
+
+.scroll-fade-right {
+    transform: translateX(50px);
+}
+
+.scroll-fade-scale {
+    transform: translateY(30px) scale(0.9);
+}
+
+/* Quando animar */
+.scroll-fade-in.animate-in,
+.scroll-fade-up.animate-in,
+.scroll-fade-left.animate-in,
+.scroll-fade-right.animate-in,
+.scroll-fade-scale.animate-in {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+}
+
+/* Animações específicas para seções */
+section {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+section.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animações para timeline items */
+.timeline-item {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-item.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animações para fotos e vídeos */
+.foto-item,
+.video-item {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.foto-item.animate-in,
+.video-item.animate-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Animações para cards de sonhos */
+.sonho-card {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sonho-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animações para cards de referências */
+.reference-card {
+    opacity: 0;
+    transform: translateY(40px) scale(0.9);
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reference-card.animate-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Animações para ícones de jogos */
+.jogo-icon-small {
+    opacity: 0;
+    transform: scale(0.5) rotate(-180deg);
+    transition: opacity 0.5s ease-out, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.jogo-icon-small.animate-in {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+/* Animações para quotes do The Office */
+.office-quote-card,
+.reference-quote {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.office-quote-card.animate-in,
+.reference-quote.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Animações para stat cards */
+.stat-card {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    transition: opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card.animate-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Animações para section headers */
+.section-header {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section-header.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.section-header.animate-in .section-title {
+    animation: titleGlow 1s ease-out 0.3s both;
+}
+
+@keyframes titleGlow {
+    0% {
+        text-shadow: 0 0 0 rgba(255, 107, 157, 0);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+    }
+    100% {
+        text-shadow: 0 0 0 rgba(255, 107, 157, 0);
+    }
+}
+
+/* Melhorar performance */
+.scroll-fade-in,
+.scroll-fade-up,
+.scroll-fade-left,
+.scroll-fade-right,
+.scroll-fade-scale,
+section,
+.timeline-item,
+.foto-item,
+.video-item,
+.sonho-card,
+.reference-card,
+.jogo-icon-small,
+.office-quote-card,
+.stat-card,
+.section-header {
+    will-change: transform, opacity;
+}
+
+/* Desabilitar will-change após animação para melhor performance */
+.scroll-fade-in.animate-in,
+.scroll-fade-up.animate-in,
+.scroll-fade-left.animate-in,
+.scroll-fade-right.animate-in,
+.scroll-fade-scale.animate-in,
+section.animate-in,
+.timeline-item.animate-in,
+.foto-item.animate-in,
+.video-item.animate-in,
+.sonho-card.animate-in,
+.reference-card.animate-in,
+.jogo-icon-small.animate-in,
+.office-quote-card.animate-in,
+.stat-card.animate-in,
+.section-header.animate-in {
+    will-change: auto;
 }
 
 /* Lock Screen Styles */
