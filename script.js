@@ -1068,7 +1068,7 @@ function initUploadSystem() {
     // Drag and drop
     if (uploadDropzone) {
         uploadDropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
+        e.preventDefault();
             uploadDropzone.classList.add('dragover');
         });
         
@@ -1186,14 +1186,14 @@ function resetUploadForm() {
 function submitUpload() {
     if (!selectedAuthor) {
         alert('Por favor, selecione quem está adicionando o conteúdo.');
-        return;
-    }
-    
+            return;
+        }
+        
     if (selectedFiles.length === 0) {
         alert('Por favor, selecione pelo menos um arquivo.');
-        return;
-    }
-    
+            return;
+        }
+        
     const comment = document.getElementById('uploadComment').value;
     const date = document.getElementById('uploadDate').value;
     
@@ -1329,7 +1329,7 @@ function saveContent(content) {
     let key;
     if (currentUploadSection === 'lembrancas') {
         key = 'mariaeduarda_lembrancas';
-    } else {
+            } else {
         key = `mariaeduarda_${currentUploadSection}`;
     }
     const existing = JSON.parse(localStorage.getItem(key) || '[]');
@@ -3142,6 +3142,7 @@ let dominoGameState = {
     currentPlayer: null,
     board: [],
     hands: {},
+    stock: [], // Monte de peças
     turn: 0,
     gameStarted: false,
     chat: [],
@@ -3149,40 +3150,156 @@ let dominoGameState = {
         maria: 0,
         fernando: 0
     },
-    gameHistory: []
+    gameHistory: [],
+    targetScore: 100, // Pontuação alvo (50, 100, 150, 200)
+    currentScores: {
+        maria: 0,
+        fernando: 0
+    }
 };
 
 function initDomino() {
     gameModal.classList.add('active');
     
-    const gameHTML = `
-        <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">🎲 Dominó</h2>
-        <div class="domino-room">
-            <div class="room-controls">
-                <input type="text" id="roomIdInput" class="room-input" placeholder="ID da Sala">
-                <button class="room-btn" onclick="createRoom()">Criar Sala</button>
-                <button class="room-btn" onclick="joinRoom()">Entrar na Sala</button>
-            </div>
-            <div id="roomInfo" style="display: none;">
-                <div class="room-info">
-                    <h3>Sala: <span id="roomIdDisplay"></span></h3>
-                    <p>Jogadores:</p>
-                    <div class="players-list" id="playersList"></div>
-                </div>
-                <div id="gameArea"></div>
-            </div>
-        </div>
-    `;
-    gameContainer.innerHTML = gameHTML;
-    
-    // Check if already in a room (mas não carregar automaticamente - só quando o usuário entrar)
+    // Verificar se já existe um jogo em andamento
     const savedRoom = localStorage.getItem('dominoRoom');
     if (savedRoom) {
         const roomData = JSON.parse(savedRoom);
         dominoGameState = roomData;
-        // Não carregar automaticamente - o usuário precisa entrar na sala manualmente
-        // loadRoom(); // Removido para não abrir automaticamente
+        
+        // Se já tem 2 jogadores e jogo iniciado, mostrar o jogo
+        if (roomData.players && roomData.players.length === 2 && roomData.gameStarted) {
+            renderGameDirectly();
+            return;
+        }
     }
+    
+    // Inicializar estado se não existir
+    if (!dominoGameState.players || dominoGameState.players.length === 0) {
+        dominoGameState.players = [];
+        dominoGameState.scores = { maria: 0, fernando: 0 };
+        dominoGameState.currentScores = { maria: 0, fernando: 0 };
+        dominoGameState.targetScore = 100;
+        dominoGameState.stock = [];
+    }
+    
+    const gameHTML = `
+        <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">🎲 Dominó</h2>
+        <div class="domino-room">
+            <div class="simple-room-controls">
+                <div class="players-setup">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1.5rem; text-align: center;">👥 Escolha os Jogadores</h3>
+                    <div class="player-select-buttons">
+                        <button class="player-select-btn ${dominoGameState.players.includes('maria') ? 'selected' : ''}" 
+                                onclick="togglePlayer('maria')" 
+                                id="btnMaria">
+                            <div class="player-select-avatar">👩</div>
+                            <div class="player-select-name">Maria Eduarda</div>
+                            ${dominoGameState.players.includes('maria') ? '<div class="player-select-check">✓</div>' : ''}
+                        </button>
+                        <button class="player-select-btn ${dominoGameState.players.includes('fernando') ? 'selected' : ''}" 
+                                onclick="togglePlayer('fernando')" 
+                                id="btnFernando">
+                            <div class="player-select-avatar">👨</div>
+                            <div class="player-select-name">Fernando</div>
+                            ${dominoGameState.players.includes('fernando') ? '<div class="player-select-check">✓</div>' : ''}
+                        </button>
+                    </div>
+                    <div class="start-game-section">
+                        <button class="start-game-btn" onclick="startDominoGame()" 
+                                ${dominoGameState.players.length < 2 ? 'disabled' : ''}
+                                id="startGameBtn">
+                            <span class="btn-icon">🎮</span>
+                            <span class="btn-text">Começar Partida</span>
+                        </button>
+                        ${dominoGameState.players.length < 2 ? 
+                            '<p class="players-hint">Selecione 2 jogadores para começar</p>' : 
+                            '<p class="players-hint ready">Pronto para começar! 🎉</p>'}
+                    </div>
+                </div>
+            </div>
+            <div id="gameArea" style="display: none;"></div>
+        </div>
+    `;
+    gameContainer.innerHTML = gameHTML;
+}
+
+function togglePlayer(player) {
+    const index = dominoGameState.players.indexOf(player);
+    
+    if (index === -1) {
+        // Adicionar jogador
+        if (dominoGameState.players.length < 2) {
+            dominoGameState.players.push(player);
+        } else {
+            alert('Máximo de 2 jogadores!');
+            return;
+        }
+    } else {
+        // Remover jogador
+        dominoGameState.players.splice(index, 1);
+    }
+    
+    // Atualizar UI
+    const btn = document.getElementById(`btn${player === 'maria' ? 'Maria' : 'Fernando'}`);
+    const startBtn = document.getElementById('startGameBtn');
+    const hint = document.querySelector('.players-hint');
+    
+    if (btn) {
+        if (dominoGameState.players.includes(player)) {
+            btn.classList.add('selected');
+            btn.innerHTML = `
+                <div class="player-select-avatar">${player === 'maria' ? '👩' : '👨'}</div>
+                <div class="player-select-name">${player === 'maria' ? 'Maria Eduarda' : 'Fernando'}</div>
+                <div class="player-select-check">✓</div>
+            `;
+        } else {
+            btn.classList.remove('selected');
+            btn.innerHTML = `
+                <div class="player-select-avatar">${player === 'maria' ? '👩' : '👨'}</div>
+                <div class="player-select-name">${player === 'maria' ? 'Maria Eduarda' : 'Fernando'}</div>
+            `;
+        }
+    }
+    
+    if (startBtn) {
+        startBtn.disabled = dominoGameState.players.length < 2;
+    }
+    
+    if (hint) {
+        if (dominoGameState.players.length < 2) {
+            hint.textContent = 'Selecione 2 jogadores para começar';
+            hint.classList.remove('ready');
+        } else {
+            hint.textContent = 'Pronto para começar! 🎉';
+            hint.classList.add('ready');
+        }
+    }
+    
+    saveGameState();
+}
+
+function startDominoGame() {
+    if (dominoGameState.players.length < 2) {
+        alert('Selecione 2 jogadores para começar!');
+        return;
+    }
+    
+    // Esconder controles e mostrar área do jogo
+    document.querySelector('.simple-room-controls').style.display = 'none';
+    document.getElementById('gameArea').style.display = 'block';
+    
+    // Mostrar modal de seleção de modo
+    showScoreModeModal();
+}
+
+function renderGameDirectly() {
+    document.querySelector('.simple-room-controls')?.style.setProperty('display', 'none');
+    const gameArea = document.getElementById('gameArea');
+    if (gameArea) {
+        gameArea.style.display = 'block';
+    }
+    renderGame();
 }
 
 function createRoom() {
@@ -3191,6 +3308,20 @@ function createRoom() {
     dominoGameState.players = [currentPlayer];
     dominoGameState.currentPlayer = currentPlayer;
     dominoGameState.gameStarted = false;
+    
+    // Inicializar valores padrão
+    if (!dominoGameState.scores) {
+        dominoGameState.scores = { maria: 0, fernando: 0 };
+    }
+    if (!dominoGameState.currentScores) {
+        dominoGameState.currentScores = { maria: 0, fernando: 0 };
+    }
+    if (!dominoGameState.targetScore) {
+        dominoGameState.targetScore = 100;
+    }
+    if (!dominoGameState.stock) {
+        dominoGameState.stock = [];
+    }
     
     saveGameState();
     loadRoom();
@@ -3233,12 +3364,61 @@ function loadRoom() {
     updatePlayersList();
     
     if (dominoGameState.players.length === 2 && !dominoGameState.gameStarted) {
-        startGame();
+        // Mostrar modal de seleção de modo
+        showScoreModeModal();
     } else if (dominoGameState.players.length < 2) {
         showWaitingMessage();
     } else {
         renderGame();
     }
+}
+
+function showScoreModeModal() {
+    const modal = document.createElement('div');
+    modal.className = 'score-mode-modal';
+    modal.innerHTML = `
+        <div class="score-mode-content">
+            <h2>🎯 Escolha o Modo de Pontuação</h2>
+            <p style="margin-bottom: 2rem; color: var(--text-light);">Primeiro a atingir a pontuação escolhida vence!</p>
+            <div class="score-mode-options">
+                <button class="score-mode-btn" onclick="selectScoreMode(50)">
+                    <div class="score-mode-icon">50</div>
+                    <div class="score-mode-label">Rápido</div>
+                    <div class="score-mode-desc">50 pontos</div>
+                </button>
+                <button class="score-mode-btn" onclick="selectScoreMode(100)">
+                    <div class="score-mode-icon">100</div>
+                    <div class="score-mode-label">Normal</div>
+                    <div class="score-mode-desc">100 pontos</div>
+                </button>
+                <button class="score-mode-btn" onclick="selectScoreMode(150)">
+                    <div class="score-mode-icon">150</div>
+                    <div class="score-mode-label">Longo</div>
+                    <div class="score-mode-desc">150 pontos</div>
+                </button>
+                <button class="score-mode-btn" onclick="selectScoreMode(200)">
+                    <div class="score-mode-icon">200</div>
+                    <div class="score-mode-label">Épico</div>
+                    <div class="score-mode-desc">200 pontos</div>
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 100);
+}
+
+function selectScoreMode(score) {
+    dominoGameState.targetScore = score;
+    dominoGameState.currentScores = { maria: 0, fernando: 0 };
+    
+    const modal = document.querySelector('.score-mode-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    }
+    
+    startGame();
 }
 
 function updatePlayersList() {
@@ -3301,7 +3481,18 @@ function startGame() {
         };
     }
     
-    // Create domino pieces (0-0 to 6-6)
+    if (!dominoGameState.currentScores) {
+        dominoGameState.currentScores = {
+            maria: 0,
+            fernando: 0
+        };
+    }
+    
+    if (!dominoGameState.targetScore) {
+        dominoGameState.targetScore = 100;
+    }
+    
+    // Create domino pieces (0-0 to 6-6) - total 28 peças
     const pieces = [];
     for (let i = 0; i <= 6; i++) {
         for (let j = i; j <= 6; j++) {
@@ -3312,11 +3503,14 @@ function startGame() {
     // Shuffle pieces
     pieces.sort(() => Math.random() - 0.5);
     
-    // Deal pieces (7 each)
+    // Deal pieces (7 each) - restante vai para o monte
     dominoGameState.hands = {
         [dominoGameState.players[0]]: pieces.slice(0, 7),
         [dominoGameState.players[1]]: pieces.slice(7, 14)
     };
+    
+    // Restante das peças vai para o monte (14 peças restantes)
+    dominoGameState.stock = pieces.slice(14);
     
     // Reset board and turn
     dominoGameState.board = [];
@@ -3359,6 +3553,20 @@ function renderGame() {
                     ${renderBoardGame()}
                 </div>
                 
+                <!-- Score Display -->
+                <div class="domino-score-display">
+                    <div class="score-display-item">
+                        <span class="score-label">${playerNames.maria}</span>
+                        <span class="score-value">${dominoGameState.currentScores ? dominoGameState.currentScores.maria : 0}</span>
+                        <span class="score-target">/ ${dominoGameState.targetScore || 100}</span>
+                    </div>
+                    <div class="score-display-item">
+                        <span class="score-label">${playerNames.fernando}</span>
+                        <span class="score-value">${dominoGameState.currentScores ? dominoGameState.currentScores.fernando : 0}</span>
+                        <span class="score-target">/ ${dominoGameState.targetScore || 100}</span>
+                    </div>
+                </div>
+                
                 <!-- Chat Area -->
                 <div class="domino-chat-container">
                     <div class="chat-header">
@@ -3395,7 +3603,10 @@ function renderGame() {
             <!-- Game Status -->
             <div class="game-status-bar">
                 <span class="status-text">${isMyTurn ? '🎯 Sua vez de jogar!' : `⏳ Aguardando ${playerNames[opponentName]} jogar...`}</span>
-                <div style="display: flex; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    ${isMyTurn && dominoGameState.stock && dominoGameState.stock.length > 0 ? 
+                        `<button onclick="buyPiece()" class="refresh-btn" style="background: #f39c12;" title="Comprar peça do monte">🛒 Comprar Peça</button>` : ''}
+                    <button onclick="toggleFullscreen()" class="refresh-btn fullscreen-btn" title="Tela cheia">⛶</button>
                     <button onclick="showDominoHistory()" class="refresh-btn" style="background: #667eea;">📊 Histórico</button>
                     <button onclick="restartGame()" class="refresh-btn" style="background: #e74c3c;">🔄 Nova Partida</button>
                     <button onclick="refreshGame()" class="refresh-btn">🔄 Atualizar</button>
@@ -3428,18 +3639,43 @@ function renderGame() {
 }
 
 function renderBoardGame() {
-    if (dominoGameState.board.length === 0) {
-        return '<div class="empty-board">Nenhuma peça no tabuleiro ainda. Seja o primeiro a jogar!</div>';
-    }
+    const stockCount = dominoGameState.stock ? dominoGameState.stock.length : 0;
+    const currentPlayerName = dominoGameState.players && dominoGameState.players.length > 0 
+        ? dominoGameState.players[dominoGameState.turn % 2] 
+        : null;
+    const isMyTurn = currentPlayerName === currentPlayer;
+    const canBuy = isMyTurn && stockCount > 0;
     
-    // Determine orientation for each piece based on position
     let html = '<div class="board-pieces-container">';
     
-    dominoGameState.board.forEach((piece, index) => {
-        const [left, right] = piece;
-        const orientation = determinePieceOrientation(index);
-        html += createDominoPieceGameHTML(left, right, index, false, orientation);
-    });
+    // Renderizar peças do tabuleiro
+    if (dominoGameState.board.length === 0) {
+        html += '<div class="empty-board-message">Nenhuma peça no tabuleiro ainda. Seja o primeiro a jogar!</div>';
+    } else {
+        dominoGameState.board.forEach((piece, index) => {
+            const [left, right] = piece;
+            const orientation = determinePieceOrientation(index);
+            html += createDominoPieceGameHTML(left, right, index, false, orientation);
+        });
+    }
+    
+    // Adicionar monte de peças no centro
+    
+    html += `
+        <div class="domino-stock ${canBuy ? 'clickable' : ''}" 
+             id="dominoStock" 
+             title="Monte de peças (${stockCount} restantes)${canBuy ? ' - Clique para comprar' : ''}"
+             ${canBuy ? 'onclick="buyPiece()"' : ''}>
+            <div class="stock-pieces">
+                ${stockCount > 0 ? Array(Math.min(stockCount, 5)).fill(0).map((_, i) => `
+                    <div class="stock-piece" style="transform: rotate(${i * 15}deg) translateY(-${i * 2}px); z-index: ${5 - i};">
+                        <div class="stock-piece-back"></div>
+                    </div>
+                `).join('') : ''}
+            </div>
+            <div class="stock-count">${stockCount}</div>
+        </div>
+    `;
     
     html += '</div>';
     return html;
@@ -3501,6 +3737,91 @@ function generateDotsGame(value) {
         6: `<div class="domino-dot-game" style="grid-column: 1; grid-row: 1; background: ${color};"></div><div class="domino-dot-game" style="grid-column: 3; grid-row: 1; background: ${color};"></div><div class="domino-dot-game" style="grid-column: 1; grid-row: 2; background: ${color};"></div><div class="domino-dot-game" style="grid-column: 3; grid-row: 2; background: ${color};"></div><div class="domino-dot-game" style="grid-column: 1; grid-row: 3; background: ${color};"></div><div class="domino-dot-game" style="grid-column: 3; grid-row: 3; background: ${color};"></div>`
     };
     return dotPatterns[value] || '';
+}
+
+function buyPiece() {
+    if (!dominoGameState.gameStarted) {
+        alert('O jogo ainda não começou!');
+        return;
+    }
+    
+    if (!dominoGameState.players || dominoGameState.players.length < 2) {
+        alert('Aguardando outro jogador entrar na sala...');
+        return;
+    }
+    
+    const currentTurnPlayer = dominoGameState.players[dominoGameState.turn % 2];
+    if (currentTurnPlayer !== currentPlayer) {
+        alert('Não é sua vez! Aguarde o outro jogador jogar.');
+        return;
+    }
+    
+    const stock = dominoGameState.stock || [];
+    if (stock.length === 0) {
+        alert('Não há mais peças no monte!');
+        return;
+    }
+    
+    // Comprar uma peça do monte
+    const boughtPiece = stock.pop();
+    const myHand = dominoGameState.hands[currentPlayer] || [];
+    myHand.push(boughtPiece);
+    
+    // Animar a peça comprada
+    animatePieceFromStock(boughtPiece);
+    
+    // Passar a vez
+    dominoGameState.turn++;
+    saveGameState();
+    
+    // Renderizar após animação
+    setTimeout(() => {
+        renderGame();
+    }, 800);
+}
+
+function animatePieceFromStock(piece) {
+    const stockElement = document.getElementById('dominoStock');
+    const handElement = document.getElementById('dominoHandGame');
+    
+    if (!stockElement || !handElement) return;
+    
+    // Criar elemento animado
+    const animatedPiece = document.createElement('div');
+    animatedPiece.className = 'domino-piece-hand animated-piece';
+    const [left, right] = piece;
+    const dotsLeft = generateDotsGame(left);
+    const dotsRight = generateDotsGame(right);
+    animatedPiece.innerHTML = `
+        <div class="domino-half">${dotsLeft}</div>
+        <div class="domino-divider-game"></div>
+        <div class="domino-half">${dotsRight}</div>
+    `;
+    
+    // Posicionar no monte
+    const stockRect = stockElement.getBoundingClientRect();
+    const handRect = handElement.getBoundingClientRect();
+    
+    animatedPiece.style.position = 'fixed';
+    animatedPiece.style.left = stockRect.left + stockRect.width / 2 - 40 + 'px';
+    animatedPiece.style.top = stockRect.top + stockRect.height / 2 - 80 + 'px';
+    animatedPiece.style.zIndex = '10000';
+    animatedPiece.style.pointerEvents = 'none';
+    
+    document.body.appendChild(animatedPiece);
+    
+    // Animar até a mão
+    setTimeout(() => {
+        animatedPiece.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+        animatedPiece.style.left = handRect.left + handRect.width / 2 - 40 + 'px';
+        animatedPiece.style.top = handRect.top + handRect.height / 2 - 80 + 'px';
+        animatedPiece.style.transform = 'scale(1.2) rotate(360deg)';
+    }, 50);
+    
+    // Remover após animação
+    setTimeout(() => {
+        animatedPiece.remove();
+    }, 900);
 }
 
 function playPiece(left, right) {
@@ -3602,14 +3923,36 @@ function playPiece(left, right) {
             saveGameState();
             renderGame();
             
-            // Check win condition
+            // Calcular pontuação da rodada
+            const roundScore = calculateRoundScore(currentPlayer);
+            if (roundScore > 0) {
+                dominoGameState.currentScores[currentPlayer] += roundScore;
+                
+                // Verificar vitória por pontuação
+                if (dominoGameState.currentScores[currentPlayer] >= dominoGameState.targetScore) {
+                    endGame(currentPlayer);
+                    return;
+                }
+            }
+            
+            // Check win condition (sem peças na mão)
             if (myHand.length === 0) {
                 endGame(currentPlayer);
             }
         } else {
-            alert(`Esta peça [${left}|${right}] não pode ser jogada!\n\nExtremidades disponíveis:\nEsquerda: ${leftEnd}\nDireita: ${rightEnd}\n\nA peça deve ter um lado igual a uma das extremidades.`);
+            alert(`Esta peça [${left}|${right}] não pode ser jogada!\n\nExtremidades disponíveis:\nEsquerda: ${leftEnd}\nDireita: ${rightEnd}\n\nA peça deve ter um lado igual a uma das extremidades.\n\n💡 Dica: Clique no monte de peças para comprar uma nova peça!`);
         }
     }
+}
+
+function calculateRoundScore(player) {
+    // Calcular pontuação baseada nas peças jogadas na rodada
+    // Por enquanto, retorna 0 (pode ser implementado depois)
+    // A pontuação pode ser baseada em:
+    // - Soma dos valores das peças jogadas
+    // - Combinações especiais
+    // - Peças do oponente restantes
+    return 0;
 }
 
 function restartGame() {
@@ -4039,8 +4382,6 @@ function loadFotoFondue() {
 }
 
 // Make functions available globally
-window.createRoom = createRoom;
-window.joinRoom = joinRoom;
 window.playPiece = playPiece;
 window.refreshGame = refreshGame;
 window.restartGame = restartGame;
@@ -4056,3 +4397,89 @@ window.uploadVideoPedido = uploadVideoPedido;
 window.showDominoHistory = showDominoHistory;
 window.closeHistoryModal = closeHistoryModal;
 window.closeVictoryModal = closeVictoryModal;
+window.selectScoreMode = selectScoreMode;
+window.buyPiece = buyPiece;
+window.togglePlayer = togglePlayer;
+window.startDominoGame = startDominoGame;
+
+// Fullscreen functionality
+let isFullscreen = false;
+
+function toggleFullscreen() {
+    const gameContainer = document.querySelector('.game-container');
+    if (!gameContainer) return;
+    
+    if (!isFullscreen) {
+        // Entrar em fullscreen
+        if (gameContainer.requestFullscreen) {
+            gameContainer.requestFullscreen().catch(err => {
+                console.log('Erro ao entrar em fullscreen:', err);
+                // Fallback: usar classe CSS para simular fullscreen
+                gameContainer.classList.add('fullscreen-mode');
+                isFullscreen = true;
+            });
+        } else if (gameContainer.webkitRequestFullscreen) {
+            gameContainer.webkitRequestFullscreen();
+        } else if (gameContainer.mozRequestFullScreen) {
+            gameContainer.mozRequestFullScreen();
+        } else if (gameContainer.msRequestFullscreen) {
+            gameContainer.msRequestFullscreen();
+        } else {
+            // Fallback: usar classe CSS para simular fullscreen
+            gameContainer.classList.add('fullscreen-mode');
+        }
+        isFullscreen = true;
+    } else {
+        // Sair do fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+        isFullscreen = false;
+        gameContainer.classList.remove('fullscreen-mode');
+    }
+}
+
+// Detectar mudanças no fullscreen
+document.addEventListener('fullscreenchange', () => {
+    isFullscreen = !!document.fullscreenElement;
+    const gameContainer = document.querySelector('.game-container');
+    if (gameContainer) {
+        if (isFullscreen) {
+            gameContainer.classList.add('fullscreen-mode');
+        } else {
+            gameContainer.classList.remove('fullscreen-mode');
+        }
+    }
+});
+
+document.addEventListener('webkitfullscreenchange', () => {
+    isFullscreen = !!document.webkitFullscreenElement;
+    const gameContainer = document.querySelector('.game-container');
+    if (gameContainer) {
+        gameContainer.classList.toggle('fullscreen-mode', isFullscreen);
+    }
+});
+
+document.addEventListener('mozfullscreenchange', () => {
+    isFullscreen = !!document.mozFullScreenElement;
+    const gameContainer = document.querySelector('.game-container');
+    if (gameContainer) {
+        gameContainer.classList.toggle('fullscreen-mode', isFullscreen);
+    }
+});
+
+document.addEventListener('MSFullscreenChange', () => {
+    isFullscreen = !!document.msFullscreenElement;
+    const gameContainer = document.querySelector('.game-container');
+    if (gameContainer) {
+        gameContainer.classList.toggle('fullscreen-mode', isFullscreen);
+    }
+});
+
+window.toggleFullscreen = toggleFullscreen;
