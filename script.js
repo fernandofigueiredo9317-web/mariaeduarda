@@ -849,9 +849,48 @@ function initJogosCarousel() {
     updateCarousel(currentIndex);
 }
 
+// Garantir que a página comece no topo e feche modais
+window.addEventListener('load', () => {
+    // Sempre ir para o topo ao carregar
+    window.scrollTo(0, 0);
+    
+    // Fechar qualquer modal que possa estar aberto incorretamente
+    const gameModal = document.getElementById('gameModal');
+    const loginModal = document.getElementById('loginModal');
+    const loginSystemModal = document.getElementById('loginSystemModal');
+    
+    // Fechar todos os modais de jogo
+    if (gameModal) {
+        gameModal.classList.remove('active');
+        gameModal.classList.remove('domino-active');
+        const gameContainer = document.getElementById('gameContainer');
+        if (gameContainer) {
+            gameContainer.innerHTML = '';
+        }
+    }
+    
+    // Fechar modal de login do dominó
+    if (loginModal) {
+        loginModal.classList.remove('active');
+    }
+    
+    // loginSystemModal só deve estar ativo se não houver usuário logado (isso é tratado no initLoginSystem)
+    
+    // Limpar qualquer hash indesejado da URL (exceto seções válidas)
+    const validHashes = ['#home', '#nossa-historia', '#fotos', '#videos', '#trends', '#viagens', '#dates', '#sonhos', '#jogos', '#perfil'];
+    if (window.location.hash && !validHashes.includes(window.location.hash)) {
+        // Se houver hash inválido, limpar e ir para o topo
+        window.history.replaceState(null, null, window.location.pathname);
+        window.scrollTo(0, 0);
+    }
+});
+
 // Inicializar quando o DOM estiver pronto
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+        // Garantir que começamos no topo
+        window.scrollTo(0, 0);
+        
         initLoginSystem(); // Deve ser chamado primeiro
         initJogosCarousel();
         initUploadSystem();
@@ -862,8 +901,25 @@ if (document.readyState === 'loading') {
         loadSonhos();
         loadLembrancas();
         loadFotoFondue();
+        
+        // Garantir que não há hash indesejado
+        if (window.location.hash && window.location.hash !== '#home') {
+            // Se houver hash, fazer scroll suave para a seção
+            const target = document.querySelector(window.location.hash);
+            if (target) {
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        } else {
+            // Se não houver hash ou for #home, ir para o topo
+            window.scrollTo(0, 0);
+        }
     });
 } else {
+    // Garantir que começamos no topo
+    window.scrollTo(0, 0);
+    
     initLoginSystem(); // Deve ser chamado primeiro
     initJogosCarousel();
     initUploadSystem();
@@ -874,6 +930,20 @@ if (document.readyState === 'loading') {
     loadSonhos();
     loadLembrancas();
     loadFotoFondue();
+    
+    // Garantir que não há hash indesejado
+    if (window.location.hash && window.location.hash !== '#home') {
+        // Se houver hash, fazer scroll suave para a seção
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+            setTimeout(() => {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    } else {
+        // Se não houver hash ou for #home, ir para o topo
+        window.scrollTo(0, 0);
+    }
 }
 
 // Upload System
@@ -3023,12 +3093,13 @@ function initDomino() {
     `;
     gameContainer.innerHTML = gameHTML;
     
-    // Check if already in a room
+    // Check if already in a room (mas não carregar automaticamente - só quando o usuário entrar)
     const savedRoom = localStorage.getItem('dominoRoom');
     if (savedRoom) {
         const roomData = JSON.parse(savedRoom);
         dominoGameState = roomData;
-        loadRoom();
+        // Não carregar automaticamente - o usuário precisa entrar na sala manualmente
+        // loadRoom(); // Removido para não abrir automaticamente
     }
 }
 
@@ -3259,7 +3330,10 @@ function renderGame() {
     if (window.dominoRefreshInterval) {
         clearInterval(window.dominoRefreshInterval);
     }
-    window.dominoRefreshInterval = setInterval(refreshGame, 3000);
+    // Só iniciar refresh se o modal estiver aberto
+    if (gameModal && gameModal.classList.contains('active')) {
+        window.dominoRefreshInterval = setInterval(refreshGame, 3000);
+    }
 }
 
 function renderBoardGame() {
@@ -3486,6 +3560,12 @@ function restartGame() {
 }
 
 function refreshGame() {
+    // Só atualizar se o modal do jogo estiver aberto
+    const gameModal = document.getElementById('gameModal');
+    if (!gameModal || !gameModal.classList.contains('active')) {
+        return; // Não fazer nada se o modal não estiver aberto
+    }
+    
     const savedRoom = localStorage.getItem('dominoRoom');
     if (savedRoom) {
         const roomData = JSON.parse(savedRoom);
@@ -3495,7 +3575,10 @@ function refreshGame() {
             // Reload chat messages
             loadChatMessages();
         } else {
-            loadRoom();
+            // Só carregar a sala se o modal estiver aberto
+            if (gameModal.classList.contains('active')) {
+                loadRoom();
+            }
         }
     }
 }
