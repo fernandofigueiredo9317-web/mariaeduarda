@@ -1,3 +1,335 @@
+// Lock Screen System
+const lockScreen = document.getElementById('lockScreen');
+const mainContent = document.getElementById('mainContent');
+let dialValues = [0, 0, 0, 0]; // Inicializar zerado
+
+// Verificar se já foi desbloqueado (usando sessionStorage para manter durante a sessão)
+if (sessionStorage.getItem('siteUnlocked') === 'true') {
+    if (lockScreen) lockScreen.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'block';
+} else {
+    // Mostrar tela de bloqueio
+    if (lockScreen) lockScreen.style.display = 'flex';
+    if (mainContent) mainContent.style.display = 'none';
+    document.body.style.overflow = 'hidden';
+}
+
+// Inicializar valores dos discos
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('dial1')) {
+        document.getElementById('dial1').textContent = dialValues[0];
+        document.getElementById('dial2').textContent = dialValues[1];
+        document.getElementById('dial3').textContent = dialValues[2];
+        document.getElementById('dial4').textContent = dialValues[3];
+    }
+});
+
+function changeDial(dialIndex, direction) {
+    const dial = document.getElementById(`dial${dialIndex}`);
+    dialValues[dialIndex - 1] += direction;
+    
+    // Limitar entre 0 e 9
+    if (dialValues[dialIndex - 1] < 0) dialValues[dialIndex - 1] = 9;
+    if (dialValues[dialIndex - 1] > 9) dialValues[dialIndex - 1] = 0;
+    
+    dial.textContent = dialValues[dialIndex - 1];
+    
+    // Animação
+    dial.style.transform = 'scale(1.2)';
+    setTimeout(() => {
+        dial.style.transform = 'scale(1)';
+    }, 200);
+}
+
+function createUnlockAnimation() {
+    // Criar container para partículas
+    const particleContainer = document.createElement('div');
+    particleContainer.id = 'particleContainer';
+    particleContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10001;
+        background: rgba(0, 0, 0, 0.8);
+    `;
+    document.body.appendChild(particleContainer);
+    
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const particleCount = 500;
+    const particles = [];
+    
+    // Criar partículas iniciais (explosão)
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'unlock-particle';
+        const angle = (Math.PI * 2 * i) / particleCount;
+        const distance = 50 + Math.random() * 200;
+        const x = centerX + Math.cos(angle) * distance;
+        const y = centerY + Math.sin(angle) * distance;
+        
+        const colors = ['#ff6b9d', '#ff8fab', '#ffb3c1', '#ffd6e0', '#ffffff', '#fff5f8'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        particle.style.cssText = `
+            position: absolute;
+            width: ${4 + Math.random() * 4}px;
+            height: ${4 + Math.random() * 4}px;
+            background: ${color};
+            border-radius: 50%;
+            left: ${centerX}px;
+            top: ${centerY}px;
+            box-shadow: 0 0 ${6 + Math.random() * 4}px ${color};
+            opacity: 0;
+        `;
+        
+        particleContainer.appendChild(particle);
+        particles.push({
+            element: particle,
+            targetX: x,
+            targetY: y,
+            color: color
+        });
+    }
+    
+    // Fase 1: Explosão (0-1s)
+    setTimeout(() => {
+        particles.forEach((p, i) => {
+            setTimeout(() => {
+                p.element.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                p.element.style.left = p.targetX + 'px';
+                p.element.style.top = p.targetY + 'px';
+                p.element.style.opacity = '1';
+            }, i * 2);
+        });
+    }, 100);
+    
+    // Fase 2: Formar coração (1.5s - 2.5s)
+    setTimeout(() => {
+        const heartPoints = generateHeartPoints(centerX, centerY, 200);
+        particles.forEach((p, i) => {
+            if (i < heartPoints.length) {
+                const point = heartPoints[i];
+                setTimeout(() => {
+                    p.element.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)';
+                    p.element.style.left = point.x + 'px';
+                    p.element.style.top = point.y + 'px';
+                    p.element.style.width = '6px';
+                    p.element.style.height = '6px';
+                    p.element.style.boxShadow = `0 0 8px ${p.color}, 0 0 12px ${p.color}`;
+                }, i * 2);
+            } else if (i < particleCount * 0.8) {
+                // Partículas extras formam brilho ao redor
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const distance = 250 + Math.random() * 50;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                setTimeout(() => {
+                    p.element.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)';
+                    p.element.style.left = x + 'px';
+                    p.element.style.top = y + 'px';
+                    p.element.style.opacity = '0.3';
+                }, i * 2);
+            }
+        });
+    }, 1500);
+    
+    // Fase 3: Formar texto "eu te amo" (3s - 4.5s)
+    setTimeout(() => {
+        const textPoints = generateTextPoints(centerX, centerY, 'eu te amo');
+        particles.forEach((p, i) => {
+            if (i < textPoints.length && textPoints[i]) {
+                const point = textPoints[i];
+                setTimeout(() => {
+                    p.element.style.transition = 'all 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+                    p.element.style.left = point.x + 'px';
+                    p.element.style.top = point.y + 'px';
+                    p.element.style.width = '5px';
+                    p.element.style.height = '5px';
+                }, i * 2);
+            } else if (i >= textPoints.length) {
+                // Partículas extras desaparecem
+                p.element.style.transition = 'opacity 0.5s ease';
+                p.element.style.opacity = '0';
+            }
+        });
+    }, 3000);
+    
+    // Fase 4: Fade out e remover (4.5s+)
+    setTimeout(() => {
+        particleContainer.style.transition = 'opacity 0.8s ease';
+        particleContainer.style.opacity = '0';
+        setTimeout(() => {
+            particleContainer.remove();
+        }, 800);
+    }, 4500);
+}
+
+function generateHeartPoints(centerX, centerY, size) {
+    const points = [];
+    const step = 0.02;
+    
+    for (let t = 0; t <= 2 * Math.PI; t += step) {
+        // Fórmula paramétrica do coração (ajustada)
+        const scale = size / 20;
+        const x = centerX + scale * 16 * Math.pow(Math.sin(t), 3);
+        const y = centerY - scale * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+        
+        // Adicionar todos os pontos para formar coração completo
+        points.push({ x: x, y: y });
+    }
+    
+    // Retornar apenas alguns pontos para não sobrecarregar
+    return points.filter((_, i) => i % 3 === 0);
+}
+
+function generateTextPoints(centerX, centerY, text) {
+    const points = [];
+    const fontSize = 100;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    // Configurar fonte
+    ctx.font = `bold ${fontSize}px 'Dancing Script', cursive`;
+    ctx.fillStyle = 'white';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Desenhar texto no canvas
+    ctx.fillText(text, centerX, centerY);
+    
+    // Extrair pontos do texto desenhado
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const step = 4; // Espaçamento entre partículas
+    
+    // Área aproximada do texto
+    const textWidth = ctx.measureText(text).width;
+    const textHeight = fontSize * 1.2;
+    const startX = Math.max(0, centerX - textWidth / 2 - 50);
+    const endX = Math.min(canvas.width, centerX + textWidth / 2 + 50);
+    const startY = Math.max(0, centerY - textHeight / 2 - 20);
+    const endY = Math.min(canvas.height, centerY + textHeight / 2 + 20);
+    
+    for (let y = startY; y < endY; y += step) {
+        for (let x = startX; x < endX; x += step) {
+            const index = (Math.floor(y) * canvas.width + Math.floor(x)) * 4;
+            if (index >= 0 && index < imageData.data.length) {
+                // Verificar se o pixel tem cor (alpha > 128)
+                if (imageData.data[index + 3] > 128) {
+                    points.push({ x: x, y: y });
+                }
+            }
+        }
+    }
+    
+    // Se não gerou pontos suficientes, criar pontos baseados na forma do texto
+    if (points.length < 100) {
+        // Criar pontos simples baseados no texto
+        const textWidth2 = ctx.measureText(text).width;
+        const charWidth = textWidth2 / text.length;
+        let currentX = centerX - textWidth2 / 2;
+        
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const charWidth2 = ctx.measureText(char).width;
+            
+            // Criar pontos para cada letra
+            for (let y = centerY - fontSize / 2; y < centerY + fontSize / 2; y += step * 2) {
+                for (let x = currentX; x < currentX + charWidth2; x += step) {
+                    points.push({ x: x, y: y });
+                }
+            }
+            
+            currentX += charWidth;
+        }
+    }
+    
+    return points;
+}
+
+function unlockSite() {
+    // A senha é a data do aniversário: 07/08 (DDMM)
+    // Usar os valores dos 4 discos
+    const enteredCode = dialValues.join(''); // Ex: "0708"
+    
+    // Código correto: 0708 (07 de Agosto)
+    const correctCode = '0708';
+    
+    // Verificar se o código está correto
+    const isValid = enteredCode === correctCode;
+    
+    if (isValid) {
+        // Código correto!
+        const lockError = document.getElementById('lockError');
+        const lockMessage = document.getElementById('lockMessage');
+        
+        if (lockError) lockError.style.display = 'none';
+        if (lockMessage) {
+            lockMessage.innerHTML = `
+                <p class="lock-title" style="color: #4caf50;">✅ Correto!</p>
+                <p class="lock-subtitle">Abrindo nosso mundo... 💕</p>
+            `;
+        }
+        
+        // Animação de desbloqueio
+        const lockIcon = document.querySelector('.lock-icon');
+        if (lockIcon) {
+            lockIcon.style.animation = 'unlockAnimation 1s ease';
+        }
+        
+        // Criar animação de partículas (coração e texto)
+        createUnlockAnimation();
+        
+        // Desbloquear após animação
+        setTimeout(() => {
+            if (lockScreen) {
+                lockScreen.style.opacity = '0';
+                lockScreen.style.transition = 'opacity 0.5s ease';
+            }
+            
+            setTimeout(() => {
+                if (lockScreen) lockScreen.style.display = 'none';
+                if (mainContent) mainContent.style.display = 'block';
+                document.body.style.overflow = '';
+                
+                // Salvar no sessionStorage
+                sessionStorage.setItem('siteUnlocked', 'true');
+                
+                // Scroll para o topo
+                window.scrollTo(0, 0);
+            }, 500);
+        }, 4000); // Aumentar tempo para permitir animação completa
+        
+    } else {
+        // Código incorreto
+        const lockError = document.getElementById('lockError');
+        if (lockError) {
+            lockError.style.display = 'block';
+            lockError.style.animation = 'shake 0.5s ease';
+        }
+        
+        // Animação de erro no cadeado
+        const lockIcon = document.querySelector('.lock-icon');
+        if (lockIcon) {
+            lockIcon.style.animation = 'shake 0.5s ease';
+        }
+        
+        // Resetar após animação
+        setTimeout(() => {
+            if (lockIcon) lockIcon.style.animation = '';
+        }, 500);
+    }
+}
+
+
+window.changeDial = changeDial;
+window.unlockSite = unlockSite;
+
 // Mobile Menu Toggle
 const menuToggle = document.getElementById('menuToggle');
 const navMenu = document.getElementById('navMenu');
@@ -577,12 +909,37 @@ function getAchievementsHTML(profile) {
 function showPointsNotification(points, reason) {
     const notification = document.createElement('div');
     notification.className = 'points-notification';
+    // Adicionar referências pop ocasionalmente (25% das vezes)
+    const showPopReference = Math.random() < 0.25;
+    let popQuote = '';
+    if (showPopReference) {
+        const popQuotes = [
+            // The Office
+            "That's what she said! 💼",
+            "Bears. Beets. Battlestar Galactica. 🐻",
+            "You're the Assistant Regional Manager! 💼",
+            // Crepúsculo
+            "And so the lion fell in love with the lamb... 🌙",
+            "You're my own personal brand of heroin. 💕",
+            // Britney Spears
+            "Oops!... I Did It Again! 🎤",
+            "Baby One More Time! 💕",
+            "Toxic! 🎵",
+            // Shrek
+            "Ogres are like onions... 🦷",
+            "Somebody once told me... 💚"
+        ];
+        const randomPopQuote = popQuotes[Math.floor(Math.random() * popQuotes.length)];
+        popQuote = `<div style="font-size: 0.7rem; font-style: italic; margin-top: 0.2rem; opacity: 0.7; color: var(--text-light);">${randomPopQuote}</div>`;
+    }
+    
     notification.innerHTML = `
         <div class="notification-content">
             <span class="notification-icon">⭐</span>
             <div class="notification-text">
                 <div class="notification-points">+${points} pontos</div>
                 <div class="notification-reason">${reason}</div>
+                ${popQuote}
             </div>
         </div>
     `;
@@ -599,6 +956,24 @@ function showPointsNotification(points, reason) {
 }
 
 function showLevelUpNotification(level) {
+    const popLevelQuotes = [
+        // The Office
+        "That's what she said! 🎉",
+        `Bears. Beets. Battlestar Galactica. E você subiu para o nível ${level}! 🐻`,
+        `You're the Regional Manager of Level ${level}! 💼`,
+        `I'm not superstitious, but I am a little stitious... Level ${level}! ✨`,
+        // Crepúsculo
+        `And so the lion fell in love with the lamb... Level ${level}! 🌙`,
+        `I'm only afraid of losing you... mas agora você está no nível ${level}! 💕`,
+        // Britney Spears
+        `Oops!... I Did It Again! Level ${level}! 🎤`,
+        `Baby One More Time... no nível ${level}! 💕`,
+        // Shrek
+        `Ogres are like onions... e você subiu para o nível ${level}! 🦷`,
+        `Somebody once told me you'd reach level ${level}! 💚`
+    ];
+    const randomLevelQuote = popLevelQuotes[Math.floor(Math.random() * popLevelQuotes.length)];
+    
     const notification = document.createElement('div');
     notification.className = 'level-up-notification';
     notification.innerHTML = `
@@ -607,6 +982,7 @@ function showLevelUpNotification(level) {
             <div class="level-up-text">
                 <div class="level-up-title">Nível Up!</div>
                 <div class="level-up-level">Você alcançou o nível ${level}!</div>
+                <div style="font-size: 0.75rem; font-style: italic; margin-top: 0.3rem; opacity: 0.8;">${randomLevelQuote}</div>
             </div>
         </div>
     `;
@@ -838,6 +1214,10 @@ const jogosInfo = {
     'domino': {
         title: 'Dominó',
         description: 'Jogue dominó online comigo! Crie uma sala ou entre em uma existente para jogarmos juntos.'
+    },
+    'quiz': {
+        title: 'Quiz do Amor',
+        description: 'Teste seus conhecimentos sobre nossa história! Quanto você realmente sabe sobre nós? 💕'
     }
 };
 
@@ -954,7 +1334,7 @@ window.addEventListener('load', () => {
     // loginSystemModal só deve estar ativo se não houver usuário logado (isso é tratado no initLoginSystem)
     
     // Limpar qualquer hash indesejado da URL (exceto seções válidas)
-    const validHashes = ['#home', '#nossa-historia', '#fotos', '#videos', '#trends', '#viagens', '#dates', '#sonhos', '#jogos', '#perfil'];
+    const validHashes = ['#home', '#nossa-historia', '#fotos', '#videos', '#trends', '#viagens', '#dates', '#sonhos', '#jogos', '#the-office', '#perfil'];
     if (window.location.hash && !validHashes.includes(window.location.hash)) {
         // Se houver hash inválido, limpar e ir para o topo
         window.history.replaceState(null, null, window.location.pathname);
@@ -1742,8 +2122,14 @@ function openGame(jogo) {
     // Dominó não tem seleção de dificuldade
     if (jogo === 'domino') {
         showLoginModal();
-            return;
-        }
+        return;
+    }
+    
+    // Quiz não tem seleção de dificuldade
+    if (jogo === 'quiz') {
+        initQuiz();
+        return;
+    }
         
     // Mostrar modal de seleção de dificuldade
     showDifficultyModal(jogo);
@@ -1823,6 +2209,162 @@ function selectDifficulty(difficulty) {
             initDito(difficulty);
             break;
     }
+}
+
+// Quiz do Amor
+function initQuiz() {
+    gameContainer.innerHTML = '';
+    gameModal.classList.add('active');
+    
+    const quizHTML = `
+        <div class="quiz-container">
+            <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem; font-size: 2rem;">
+                💕 Quiz do Amor 💕
+            </h2>
+            <div class="quiz-question-container" id="quizContainer">
+                <div class="quiz-question">
+                    <h3 class="quiz-question-title">Onde foi nosso primeiro date oficial (fora de casa)?</h3>
+                </div>
+                <div class="quiz-options" id="quizOptions">
+                    <button class="quiz-option" onclick="selectQuizAnswer('a')" data-option="a">
+                        <span class="option-letter">A</span>
+                        <span class="option-text">Boussole</span>
+                    </button>
+                    <button class="quiz-option" onclick="selectQuizAnswer('b')" data-option="b">
+                        <span class="option-letter">B</span>
+                        <span class="option-text">Rosso Pomodoro</span>
+                    </button>
+                    <button class="quiz-option" onclick="selectQuizAnswer('c')" data-option="c">
+                        <span class="option-letter">C</span>
+                        <span class="option-text">La Gondula</span>
+                    </button>
+                    <button class="quiz-option" onclick="selectQuizAnswer('d')" data-option="d">
+                        <span class="option-letter">D</span>
+                        <span class="option-text">Barolo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    gameContainer.innerHTML = quizHTML;
+}
+
+function selectQuizAnswer(option) {
+    const correctAnswer = 'c'; // La Gondula
+    const options = document.querySelectorAll('.quiz-option');
+    const selectedOption = document.querySelector(`[data-option="${option}"]`);
+    
+    // Desabilitar todos os botões
+    options.forEach(opt => {
+        opt.disabled = true;
+        opt.style.pointerEvents = 'none';
+    });
+    
+    if (option === correctAnswer) {
+        // Resposta correta
+        selectedOption.classList.add('correct');
+        
+        // Adicionar pontos
+        if (currentUser) {
+            addPoints(20, 'Quiz do Amor - Acertou!');
+        }
+        
+        // Mostrar mensagem de parabéns após um pequeno delay
+        setTimeout(() => {
+            showQuizSuccess();
+        }, 500);
+    } else {
+        // Resposta incorreta
+        selectedOption.classList.add('incorrect');
+        
+        // Mostrar resposta correta
+        const correctOption = document.querySelector(`[data-option="${correctAnswer}"]`);
+        correctOption.classList.add('correct');
+        
+        // Mostrar mensagem de erro
+        setTimeout(() => {
+            showQuizError();
+        }, 500);
+    }
+}
+
+function showQuizSuccess() {
+    const quizContainer = document.getElementById('quizContainer');
+    const popQuotes = [
+        // The Office
+        "That's what she said! 😏",
+        "Bears. Beets. Battlestar Galactica. E você acertou! 🐻",
+        "You're the Assistant Regional Manager of my heart! 💕",
+        "Identity theft is not a joke, Madu! But you getting this right is! 🎉",
+        "I'm not superstitious, but I am a little stitious... and you're amazing! ✨",
+        // Crepúsculo
+        "And so the lion fell in love with the lamb... e você acertou! 🌙",
+        "You're my own personal brand of heroin... e você acertou tudinho! 💕",
+        "I'm only afraid of losing you... mas você acertou! 💕",
+        // Britney Spears
+        "Oops!... I Did It Again! E você acertou! 🎤",
+        "Baby One More Time... e você acertou tudinho! 💕",
+        "Toxic... mas você acertou! 🎵",
+        // Shrek
+        "Ogres are like onions... e você acertou! 🦷",
+        "Somebody once told me you'd get this right! 💚"
+    ];
+    const randomQuote = popQuotes[Math.floor(Math.random() * popQuotes.length)];
+    
+    quizContainer.innerHTML = `
+        <div class="quiz-result success">
+            <div class="result-icon">🎉</div>
+            <h2 class="result-title">Parabéns minha princesa!</h2>
+            <p class="result-message">Você acertou tudinho! 💕</p>
+            <p class="result-submessage">${randomQuote}</p>
+            <p class="result-submessage" style="font-size: 0.9rem; margin-top: 0.5rem; font-style: italic; color: var(--text-light);">- Referência Especial 💕</p>
+            <div class="result-hearts">
+                <span class="heart-emoji">💖</span>
+                <span class="heart-emoji">💕</span>
+                <span class="heart-emoji">💗</span>
+                <span class="heart-emoji">💝</span>
+                <span class="heart-emoji">💞</span>
+            </div>
+            <button class="quiz-restart-btn" onclick="initQuiz()">Jogar Novamente</button>
+        </div>
+    `;
+}
+
+function showQuizError() {
+    const quizContainer = document.getElementById('quizContainer');
+    const popErrorQuotes = [
+        // The Office
+        "NO GOD! NO GOD PLEASE NO! NO! NO! NOOO! 😅",
+        "That's what she said... mas errado dessa vez! 😏",
+        "I declare... BANKRUPTCY! (mas tente de novo!) 💼",
+        "You miss 100% of the shots you don't take. - Wayne Gretzky - Michael Scott",
+        "Dwight, you ignorant slut! (brincadeira, tente de novo!) 😄",
+        // Crepúsculo
+        "I'm only afraid of losing you... mas tente de novo! 🌙",
+        "And so the lion fell in love with the lamb... mas errou! 😅",
+        // Britney Spears
+        "Oops!... I Did It Again! (mas errou dessa vez!) 🎤",
+        "Baby One More Time... tente de novo! 💕",
+        // Shrek
+        "Ogres are like onions... mas você errou! 🦷",
+        "Somebody once told me... tente de novo! 💚"
+    ];
+    const randomErrorQuote = popErrorQuotes[Math.floor(Math.random() * popErrorQuotes.length)];
+    
+    const errorHTML = `
+        <div class="quiz-result error">
+            <div class="result-icon">😔</div>
+            <h2 class="result-title">Ops! Não foi dessa vez</h2>
+                    <p class="result-message">A resposta correta era <strong>La Gondula</strong></p>
+                    <p class="result-submessage">${randomErrorQuote}</p>
+                    <p class="result-submessage" style="font-size: 0.9rem; margin-top: 0.5rem; font-style: italic; color: var(--text-light);">- Referência Especial 💕</p>
+            <button class="quiz-restart-btn" onclick="initQuiz()">Tentar Novamente</button>
+        </div>
+    `;
+    
+    // Adicionar ao final do container
+    quizContainer.insertAdjacentHTML('beforeend', errorHTML);
 }
 
 // Tornar função global
@@ -4064,6 +4606,27 @@ function showVictoryModal(winner, gameRecord) {
         fernando: 'Fernando'
     };
     
+    const popVictoryQuotes = [
+        // The Office
+        "That's what she said! 🎉",
+        "Bears. Beets. Battlestar Galactica. E você venceu! 🐻",
+        "You're the Regional Manager of this game! 💼",
+        "I'm not superstitious, but I am a little stitious... and you won! ✨",
+        "Identity theft is not a joke! But you winning is! 🎉",
+        // Crepúsculo
+        "And so the lion fell in love with the lamb... e você venceu! 🌙",
+        "You're my own personal brand of heroin... e você ganhou! 💕",
+        "I'm only afraid of losing you... mas você venceu! 💕",
+        // Britney Spears
+        "Oops!... I Did It Again! E você venceu! 🎤",
+        "Baby One More Time... e você ganhou! 💕",
+        "Toxic... mas você venceu! 🎵",
+        // Shrek
+        "Ogres are like onions... e você venceu! 🦷",
+        "Somebody once told me you'd win! 💚"
+    ];
+    const randomVictoryQuote = popVictoryQuotes[Math.floor(Math.random() * popVictoryQuotes.length)];
+    
     const modal = document.createElement('div');
     modal.className = 'victory-modal';
     modal.innerHTML = `
@@ -4071,6 +4634,7 @@ function showVictoryModal(winner, gameRecord) {
             <div class="victory-icon">🎉</div>
             <h2 class="victory-title">Parabéns ${playerNames[winner]}!</h2>
             <p class="victory-message">Você venceu esta partida!</p>
+                    <p class="victory-quote" style="font-style: italic; color: var(--text-light); margin: 0.5rem 0; font-size: 0.9rem;">"${randomVictoryQuote}"</p>
             <div class="victory-scores">
                 <div class="score-display">
                     <span class="score-label">${playerNames.maria}</span>
@@ -4483,3 +5047,5 @@ document.addEventListener('MSFullscreenChange', () => {
 });
 
 window.toggleFullscreen = toggleFullscreen;
+window.selectQuizAnswer = selectQuizAnswer;
+window.initQuiz = initQuiz;

@@ -11,6 +11,79 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
+    <!-- Lock Screen -->
+    <div class="lock-screen" id="lockScreen">
+        <div class="lock-screen-background">
+            <div class="floating-hearts-lock">
+                <div class="heart-lock">💖</div>
+                <div class="heart-lock">💕</div>
+                <div class="heart-lock">💗</div>
+                <div class="heart-lock">💝</div>
+                <div class="heart-lock">💞</div>
+                <div class="heart-lock">💓</div>
+                <div class="heart-lock">💖</div>
+                <div class="heart-lock">💕</div>
+                <div class="heart-lock">💗</div>
+                <div class="heart-lock">💝</div>
+            </div>
+        </div>
+        <div class="lock-screen-content">
+            <div class="lock-container">
+                <div class="lock-icon">
+                    <div class="lock-shackle"></div>
+                    <div class="lock-body">
+                        <div class="lock-dial-container">
+                            <div class="lock-dial">
+                                <div class="dial-heart">💕</div>
+                                <div class="dial-number" id="dial1">0</div>
+                                <div class="dial-controls">
+                                    <button class="dial-btn up" onclick="changeDial(1, 1)">▲</button>
+                                    <button class="dial-btn down" onclick="changeDial(1, -1)">▼</button>
+                                </div>
+                            </div>
+                            <div class="lock-dial">
+                                <div class="dial-heart">💕</div>
+                                <div class="dial-number" id="dial2">0</div>
+                                <div class="dial-controls">
+                                    <button class="dial-btn up" onclick="changeDial(2, 1)">▲</button>
+                                    <button class="dial-btn down" onclick="changeDial(2, -1)">▼</button>
+                                </div>
+                            </div>
+                            <div class="lock-dial">
+                                <div class="dial-heart">💕</div>
+                                <div class="dial-number" id="dial3">0</div>
+                                <div class="dial-controls">
+                                    <button class="dial-btn up" onclick="changeDial(3, 1)">▲</button>
+                                    <button class="dial-btn down" onclick="changeDial(3, -1)">▼</button>
+                                </div>
+                            </div>
+                            <div class="lock-dial">
+                                <div class="dial-heart">💕</div>
+                                <div class="dial-number" id="dial4">0</div>
+                                <div class="dial-controls">
+                                    <button class="dial-btn up" onclick="changeDial(4, 1)">▲</button>
+                                    <button class="dial-btn down" onclick="changeDial(4, -1)">▼</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="lock-unlock-btn" onclick="unlockSite()" id="unlockBtn">
+                            <span class="unlock-icon">🔓</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="lock-message" id="lockMessage">
+                    <p class="lock-title">💕 Nosso Mundo Secreto 💕</p>
+                    <p class="lock-subtitle">Ajuste os números para a data do nosso aniversário</p>
+                </div>
+                <div class="lock-error" id="lockError" style="display: none;">
+                    <p>❌ Melhor tentar de novo, meu amor</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until unlocked) -->
+    <div class="main-content" id="mainContent" style="display: none;">
     <!-- Header -->
     <header id="header">
         <nav class="navbar">
@@ -46,6 +119,7 @@
                         </li>
                         <li><a href="#sonhos" class="nav-link">✨ Sonhos</a></li>
                         <li><a href="#jogos" class="nav-link">🎮 Jogos</a></li>
+                        <li><a href="#the-office" class="nav-link">🎬 Referências</a></li>
                         <li><a href="#perfil" class="nav-link" id="navPerfil" style="display: none;">👤 Perfil</a></li>
                     </ul>
                     <div class="user-profile-card" id="userProfileCard" style="display: none;">
@@ -96,6 +170,7 @@
             <p class="hero-subtitle">
                 Um lugar especial criado com carinho, cheio de memórias, jogos e tudo que você ama. 
                 Este é nosso cantinho virtual, onde cada momento juntos ganha vida.
+                <br><span style="font-size: 0.9rem; font-style: italic; opacity: 0.8; margin-top: 0.5rem; display: block;">"Bears. Beets. Battlestar Galactica... e você! 💕" - The Office</span>
             </p>
             <p class="hero-signature">
                 Com todo meu amor,<br>
@@ -540,6 +615,65 @@
         </div>
     </section>
 
+    <!-- Referências Pop Section -->
+    <section id="the-office" class="references-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">🎬 Nossas Referências Favoritas</h2>
+                <p class="section-subtitle">Tudo que você ama! Referências especiais espalhadas pelo site 💕</p>
+            </div>
+            <div class="references-grid">
+                <!-- The Office -->
+                <div class="reference-card office-card">
+                    <div class="reference-icon">💼</div>
+                    <h3>The Office</h3>
+                    <p>Nossa série favorita! Referências especiais espalhadas pelo site... 😏</p>
+                    <div class="reference-quotes">
+                        <p class="reference-quote">"That's what she said!"</p>
+                        <p class="reference-quote">"Bears. Beets. Battlestar Galactica."</p>
+                        <p class="reference-quote">"I'm not superstitious, but I am a little stitious."</p>
+                    </div>
+                </div>
+                
+                <!-- Crepúsculo -->
+                <div class="reference-card twilight-card">
+                    <div class="reference-icon">🌙</div>
+                    <h3>Crepúsculo</h3>
+                    <p>Sua saga favorita! Referências românticas e especiais... 💕</p>
+                    <div class="reference-quotes">
+                        <p class="reference-quote">"And so the lion fell in love with the lamb..."</p>
+                        <p class="reference-quote">"You're my own personal brand of heroin."</p>
+                        <p class="reference-quote">"I'm only afraid of losing you."</p>
+                    </div>
+                </div>
+                
+                <!-- Britney Spears -->
+                <div class="reference-card britney-card">
+                    <div class="reference-icon">🎤</div>
+                    <h3>Britney Spears</h3>
+                    <p>A diva pop que você adora! Referências musicais especiais... 🎵</p>
+                    <div class="reference-quotes">
+                        <p class="reference-quote">"Oops!... I Did It Again"</p>
+                        <p class="reference-quote">"Baby One More Time"</p>
+                        <p class="reference-quote">"Toxic" - nossa música especial! 💕</p>
+                    </div>
+                </div>
+                
+                <!-- Shrek -->
+                <div class="reference-card shrek-card">
+                    <div class="reference-icon">🦷</div>
+                    <h3>Shrek</h3>
+                    <p>O ogro mais fofo! Referências divertidas e especiais... 😄</p>
+                    <div class="reference-quotes">
+                        <p class="reference-quote">"Ogres are like onions..."</p>
+                        <p class="reference-quote">"Somebody once told me..."</p>
+                        <p class="reference-quote">"I'm a Believer" - nossa música! 💚</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Jogos Section -->
     <section id="jogos" class="jogos">
         <div class="container">
@@ -618,6 +752,11 @@
                                 <div class="domino-piece-icon"></div>
                             </div>
                         </div>
+                        <div class="jogo-icon-small" data-jogo="quiz" data-index="6">
+                            <div class="jogo-icon-grid quiz-icon-grid">
+                                <div class="quiz-icon">❓</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -629,6 +768,7 @@
                     <span class="dot" data-index="3"></span>
                     <span class="dot" data-index="4"></span>
                     <span class="dot" data-index="5"></span>
+                    <span class="dot" data-index="6"></span>
                 </div>
                 
                 <!-- Informações do jogo selecionado -->
@@ -785,6 +925,8 @@
             </div>
         </div>
     </footer>
+
+    </div> <!-- End Main Content -->
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
