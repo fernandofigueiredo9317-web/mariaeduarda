@@ -3,27 +3,61 @@ const menuToggle = document.getElementById('menuToggle');
 const navMenu = document.getElementById('navMenu');
 const navMain = document.querySelector('.nav-main');
 
+// Criar overlay uma vez
+let menuOverlay = document.querySelector('.menu-overlay');
+if (!menuOverlay) {
+    menuOverlay = document.createElement('div');
+    menuOverlay.className = 'menu-overlay';
+    document.body.appendChild(menuOverlay);
+}
+
+// Função para fechar o menu
+function closeMobileMenu() {
+    if (menuToggle) {
+        menuToggle.classList.remove('active');
+    }
+    if (navMain) {
+        navMain.classList.remove('active');
+    }
+    if (menuOverlay) {
+        menuOverlay.classList.remove('active');
+    }
+    // Fechar todos os dropdowns
+    document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+        dropdown.classList.remove('active');
+    });
+}
+
+// Função para abrir/fechar o menu
+function toggleMobileMenu() {
+    if (!menuToggle || !navMain) return;
+    
+    const isActive = navMain.classList.contains('active');
+    
+    if (isActive) {
+        closeMobileMenu();
+    } else {
+        menuToggle.classList.add('active');
+        navMain.classList.add('active');
+        if (menuOverlay) {
+            menuOverlay.classList.add('active');
+        }
+    }
+}
+
+// Event listener no toggle
 if (menuToggle) {
-    menuToggle.addEventListener('click', () => {
-        menuToggle.classList.toggle('active');
-        if (navMain) {
-            navMain.classList.toggle('active');
-        }
-        // Criar overlay
-        let overlay = document.querySelector('.menu-overlay');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.className = 'menu-overlay';
-            document.body.appendChild(overlay);
-        }
-        overlay.classList.toggle('active');
-        
-        // Fechar ao clicar no overlay
-        overlay.addEventListener('click', () => {
-            menuToggle.classList.remove('active');
-            navMain.classList.remove('active');
-            overlay.classList.remove('active');
-        });
+    menuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMobileMenu();
+    });
+}
+
+// Fechar ao clicar no overlay
+if (menuOverlay) {
+    menuOverlay.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeMobileMenu();
     });
 }
 
@@ -32,27 +66,70 @@ document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
     toggle.addEventListener('click', (e) => {
         if (window.innerWidth <= 768) {
             e.preventDefault();
+            e.stopPropagation();
             const dropdown = toggle.closest('.nav-dropdown');
-            dropdown.classList.toggle('active');
+            if (dropdown) {
+                // Fechar outros dropdowns
+                document.querySelectorAll('.nav-dropdown').forEach(d => {
+                    if (d !== dropdown) {
+                        d.classList.remove('active');
+                    }
+                });
+                dropdown.classList.toggle('active');
+            }
         }
     });
 });
 
-// Fechar menu ao clicar em um link
+// Fechar menu ao clicar em um link (exceto dropdown toggle)
 document.querySelectorAll('.nav-menu a').forEach(link => {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', (e) => {
+        // Não fechar se for dropdown toggle
+        if (link.classList.contains('dropdown-toggle')) {
+            return;
+        }
+        
         if (window.innerWidth <= 768) {
-            menuToggle.classList.remove('active');
-            if (navMain) {
-                navMain.classList.remove('active');
-            }
-            const overlay = document.querySelector('.menu-overlay');
-            if (overlay) {
-                overlay.classList.remove('active');
-            }
+            // Pequeno delay para permitir navegação
+            setTimeout(() => {
+                closeMobileMenu();
+            }, 100);
         }
     });
 });
+
+// Fechar menu ao redimensionar a janela (se voltar para desktop)
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (window.innerWidth > 768) {
+            closeMobileMenu();
+        }
+    }, 250);
+});
+
+// Prevenir scroll do body quando menu está aberto
+function preventBodyScroll(prevent) {
+    if (prevent) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+}
+
+// Observar mudanças no menu
+if (navMain) {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const isActive = navMain.classList.contains('active');
+                preventBodyScroll(isActive);
+            }
+        });
+    });
+    observer.observe(navMain, { attributes: true });
+}
 
 // Login System
 let currentUser = null;
@@ -3067,7 +3144,12 @@ let dominoGameState = {
     hands: {},
     turn: 0,
     gameStarted: false,
-    chat: []
+    chat: [],
+    scores: {
+        maria: 0,
+        fernando: 0
+    },
+    gameHistory: []
 };
 
 function initDomino() {
@@ -3211,6 +3293,14 @@ function startGame() {
         dominoGameState.chat = [];
     }
     
+    // Initialize scores if not exists
+    if (!dominoGameState.scores) {
+        dominoGameState.scores = {
+            maria: 0,
+            fernando: 0
+        };
+    }
+    
     // Create domino pieces (0-0 to 6-6)
     const pieces = [];
     for (let i = 0; i <= 6; i++) {
@@ -3259,7 +3349,7 @@ function renderGame() {
                         <div class="player-name">${playerNames[opponentName] || 'Oponente'}</div>
                         <div class="player-pieces">(${opponentHand.length} peças)</div>
                     </div>
-                    <div class="player-score">0 pontos</div>
+                    <div class="player-score">${dominoGameState.scores && dominoGameState.scores[opponentName] ? dominoGameState.scores[opponentName] : 0} vitórias</div>
                 </div>
             </div>
             
@@ -3288,7 +3378,7 @@ function renderGame() {
             <!-- Current Player Panel -->
             <div class="player-panel current-panel">
                 <div class="player-info">
-                    <div class="player-score">0 pontos</div>
+                    <div class="player-score">${dominoGameState.scores && dominoGameState.scores[currentPlayer] ? dominoGameState.scores[currentPlayer] : 0} vitórias</div>
                     <div class="player-details">
                         <div class="player-name">Você</div>
                         <div class="player-pieces">(${myHand.length} peças)</div>
@@ -3306,6 +3396,7 @@ function renderGame() {
             <div class="game-status-bar">
                 <span class="status-text">${isMyTurn ? '🎯 Sua vez de jogar!' : `⏳ Aguardando ${playerNames[opponentName]} jogar...`}</span>
                 <div style="display: flex; gap: 0.5rem;">
+                    <button onclick="showDominoHistory()" class="refresh-btn" style="background: #667eea;">📊 Histórico</button>
                     <button onclick="restartGame()" class="refresh-btn" style="background: #e74c3c;">🔄 Nova Partida</button>
                     <button onclick="refreshGame()" class="refresh-btn">🔄 Atualizar</button>
                 </div>
@@ -3456,13 +3547,7 @@ function playPiece(left, right) {
         
         // Check win condition
         if (myHand.length === 0) {
-            setTimeout(() => {
-                const playerNames = {
-                    maria: 'Maria Eduarda',
-                    fernando: 'Fernando'
-                };
-                alert(`🎉 Parabéns ${playerNames[currentPlayer]}! Você venceu!`);
-            }, 500);
+            endGame(currentPlayer);
         }
     } else {
         // Get the exposed ends of the board
@@ -3519,13 +3604,7 @@ function playPiece(left, right) {
             
             // Check win condition
             if (myHand.length === 0) {
-                setTimeout(() => {
-                    const playerNames = {
-                        maria: 'Maria Eduarda',
-                        fernando: 'Fernando'
-                    };
-                    alert(`🎉 Parabéns ${playerNames[currentPlayer]}! Você venceu!`);
-                }, 500);
+                endGame(currentPlayer);
             }
         } else {
             alert(`Esta peça [${left}|${right}] não pode ser jogada!\n\nExtremidades disponíveis:\nEsquerda: ${leftEnd}\nDireita: ${rightEnd}\n\nA peça deve ter um lado igual a uma das extremidades.`);
@@ -3538,17 +3617,19 @@ function restartGame() {
         return;
     }
     
-    // Reset game state but keep players and room
+    // Reset game state but keep players, room, and scores
     const roomId = dominoGameState.roomId;
     const players = [...dominoGameState.players];
+    const scores = dominoGameState.scores ? {...dominoGameState.scores} : { maria: 0, fernando: 0 };
     const keepChat = confirm('Deseja manter as mensagens do chat?');
     
     // Start new game
     startGame();
     
-    // Restore room and players
+    // Restore room, players, and scores
     dominoGameState.roomId = roomId;
     dominoGameState.players = players;
+    dominoGameState.scores = scores;
     
     // Clear chat if requested
     if (!keepChat) {
@@ -3585,6 +3666,161 @@ function refreshGame() {
 
 function saveGameState() {
     localStorage.setItem('dominoRoom', JSON.stringify(dominoGameState));
+    // Salvar histórico separadamente
+    const history = JSON.parse(localStorage.getItem('dominoHistory') || '[]');
+    localStorage.setItem('dominoHistory', JSON.stringify(history));
+}
+
+// Sistema de Pontuação e Histórico
+function endGame(winner) {
+    const playerNames = {
+        maria: 'Maria Eduarda',
+        fernando: 'Fernando'
+    };
+    
+    // Atualizar pontuação
+    if (!dominoGameState.scores) {
+        dominoGameState.scores = { maria: 0, fernando: 0 };
+    }
+    dominoGameState.scores[winner]++;
+    
+    // Criar registro da partida
+    const gameRecord = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        winner: winner,
+        winnerName: playerNames[winner],
+        scores: {
+            maria: dominoGameState.scores.maria,
+            fernando: dominoGameState.scores.fernando
+        },
+        players: [...dominoGameState.players]
+    };
+    
+    // Adicionar ao histórico
+    if (!dominoGameState.gameHistory) {
+        dominoGameState.gameHistory = [];
+    }
+    dominoGameState.gameHistory.push(gameRecord);
+    
+    // Salvar histórico global
+    const globalHistory = JSON.parse(localStorage.getItem('dominoHistory') || '[]');
+    globalHistory.push(gameRecord);
+    localStorage.setItem('dominoHistory', JSON.stringify(globalHistory));
+    
+    // Salvar estado atualizado
+    saveGameState();
+    
+    // Mostrar modal de vitória
+    showVictoryModal(winner, gameRecord);
+}
+
+function showVictoryModal(winner, gameRecord) {
+    const playerNames = {
+        maria: 'Maria Eduarda',
+        fernando: 'Fernando'
+    };
+    
+    const modal = document.createElement('div');
+    modal.className = 'victory-modal';
+    modal.innerHTML = `
+        <div class="victory-content">
+            <div class="victory-icon">🎉</div>
+            <h2 class="victory-title">Parabéns ${playerNames[winner]}!</h2>
+            <p class="victory-message">Você venceu esta partida!</p>
+            <div class="victory-scores">
+                <div class="score-display">
+                    <span class="score-label">${playerNames.maria}</span>
+                    <span class="score-value">${gameRecord.scores.maria}</span>
+                </div>
+                <span class="score-vs">x</span>
+                <div class="score-display">
+                    <span class="score-label">${playerNames.fernando}</span>
+                    <span class="score-value">${gameRecord.scores.fernando}</span>
+                </div>
+            </div>
+            <div class="victory-buttons">
+                <button onclick="closeVictoryModal(); restartGame();" class="victory-btn">🔄 Nova Partida</button>
+                <button onclick="closeVictoryModal(); showDominoHistory();" class="victory-btn">📊 Ver Histórico</button>
+                <button onclick="closeVictoryModal()" class="victory-btn secondary">Fechar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 100);
+}
+
+function closeVictoryModal() {
+    const modal = document.querySelector('.victory-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+function showDominoHistory() {
+    const history = JSON.parse(localStorage.getItem('dominoHistory') || '[]');
+    const playerNames = {
+        maria: 'Maria Eduarda',
+        fernando: 'Fernando'
+    };
+    
+    // Calcular totais
+    const totals = { maria: 0, fernando: 0 };
+    history.forEach(game => {
+        totals[game.winner]++;
+    });
+    
+    const modal = document.createElement('div');
+    modal.className = 'history-modal';
+    modal.innerHTML = `
+        <div class="history-content">
+            <div class="history-header">
+                <h2>📊 Histórico de Partidas</h2>
+                <button onclick="closeHistoryModal()" class="close-history">×</button>
+            </div>
+            <div class="history-totals">
+                <div class="total-score">
+                    <span class="total-label">${playerNames.maria}</span>
+                    <span class="total-value">${totals.maria}</span>
+                </div>
+                <span class="total-vs">x</span>
+                <div class="total-score">
+                    <span class="total-label">${playerNames.fernando}</span>
+                    <span class="total-value">${totals.fernando}</span>
+                </div>
+            </div>
+            <div class="history-list">
+                ${history.length === 0 ? 
+                    '<p class="no-history">Nenhuma partida registrada ainda.</p>' :
+                    history.slice().reverse().map(game => {
+                        const isWinner = game.winner === currentPlayer;
+                        return `
+                        <div class="history-item ${isWinner ? 'won' : 'lost'}">
+                            <div class="history-date">${formatDate(game.date)}</div>
+                            <div class="history-result">
+                                <span class="history-winner">${game.winnerName}</span> venceu!
+                            </div>
+                            <div class="history-scores">
+                                ${playerNames.maria}: ${game.scores.maria} x ${game.scores.fernando} :${playerNames.fernando}
+                            </div>
+                        </div>
+                    `;
+                    }).join('')
+                }
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => modal.classList.add('show'), 100);
+}
+
+function closeHistoryModal() {
+    const modal = document.querySelector('.history-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    }
 }
 
 // Chat Functions
@@ -3817,3 +4053,6 @@ window.submitDito = submitDito;
 window.uploadFotoFondue = uploadFotoFondue;
 window.uploadFotoBrinco = uploadFotoBrinco;
 window.uploadVideoPedido = uploadVideoPedido;
+window.showDominoHistory = showDominoHistory;
+window.closeHistoryModal = closeHistoryModal;
+window.closeVictoryModal = closeVictoryModal;
